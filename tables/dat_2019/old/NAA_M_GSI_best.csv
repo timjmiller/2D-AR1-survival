@@ -1,0 +1,41 @@
+"","Model","NAA_re","est_M","M_re","conv","pdHess","runtime","NLL","dAIC","AIC","rho_Fbar","rho_SSB","rho_R","ver"
+"1","m1","IID","Fix age-specific M","None",TRUE,TRUE,0.53,-990.489,50,-1811,0.4529,0.2061,-0.1336,5
+"2","m2","AR1 (age)","Fix age-specific M","None",TRUE,TRUE,0.91,-998.838,35.3,-1825.7,0.2599,0.1022,-0.0389,5
+"3","m3","AR1 (year)","Fix age-specific M","None",TRUE,TRUE,1.12,-1001.814,29.4,-1831.6,0.287,0.1257,-0.0637,5
+"4","m4","2D AR1","Fix age-specific M","None",TRUE,TRUE,1.26,-1005.027,24.9,-1836.1,0.2231,0.0872,-0.021,5
+"5","m5","IID","Fix age-specific M","IID",TRUE,TRUE,1.58,-1012.039,8.9,-1852.1,0.0283,0.1594,-0.0861,5
+"6","m6","AR1 (age)","Fix age-specific M","IID",TRUE,TRUE,1.71,-1011.968,11.1,-1849.9,0.0931,0.1213,-0.0447,5
+"7","m7","AR1 (year)","Fix age-specific M","IID",TRUE,TRUE,3.59,-1014.365,6.3,-1854.7,0.2314,0.1218,-0.0589,2
+"8","m8","2D AR1","Fix age-specific M","IID",TRUE,TRUE,4.4,-1018.521,0,-1861,0.075,0.0973,-0.0307,3
+"9","m9","IID","Fix age-specific M","AR1 (age)",TRUE,TRUE,1.53,-1001.418,38.9,-1822.1,-0.0092,-0.1642,0.2612,5
+"10","m10","AR1 (age)","Fix age-specific M","AR1 (age)",TRUE,FALSE,0.95,Inf,NA,NA,NA,NA,NA,5
+"11","m11","AR1 (year)","Fix age-specific M","AR1 (age)",TRUE,TRUE,1.87,-1005.414,26.2,-1834.8,0.3773,0.1685,-0.0577,5
+"12","m12","2D AR1","Fix age-specific M","AR1 (age)",TRUE,TRUE,4.21,-1008.462,22.1,-1838.9,0.042,-0.0774,0.1859,3
+"13","m13","IID","Fix age-specific M","AR1 (year)",TRUE,TRUE,1.22,-1003.941,27.1,-1833.9,-0.0154,-0.0406,0.1356,5
+"14","m14","AR1 (age)","Fix age-specific M","AR1 (year)",TRUE,TRUE,1.22,-1006.106,24.8,-1836.2,-0.0652,-0.0342,0.1239,5
+"15","m15","AR1 (year)","Fix age-specific M","AR1 (year)",TRUE,TRUE,2.9,-1001.814,33.4,-1827.6,0.287,0.1257,-0.0637,3
+"16","m16","2D AR1","Fix age-specific M","AR1 (year)",TRUE,TRUE,1.91,-1008.355,22.3,-1838.7,-0.084,-0.0042,0.0833,5
+"17","m17","IID","Fix age-specific M","2D AR1",TRUE,TRUE,1.82,-1010.241,16.5,-1844.5,-0.1726,0.0072,0.0575,5
+"18","m18","AR1 (age)","Fix age-specific M","2D AR1",TRUE,TRUE,1.85,-1011.482,16,-1845,-0.1851,0.0115,0.0797,5
+"19","m19","AR1 (year)","Fix age-specific M","2D AR1",FALSE,FALSE,1.12,Inf,NA,NA,NA,NA,NA,5
+"20","m20","2D AR1","Fix age-specific M","2D AR1",FALSE,FALSE,1.76,Inf,NA,NA,NA,NA,NA,5
+"21","m21","IID","Estimate mean M","None",TRUE,TRUE,0.44,-1001.583,29.8,-1831.2,0.0327,-0.0661,0.1303,5
+"22","m22","AR1 (age)","Estimate mean M","None",TRUE,TRUE,0.45,-1006.055,22.9,-1838.1,-0.0411,-0.096,0.1738,5
+"23","m23","AR1 (year)","Estimate mean M","None",TRUE,TRUE,1.08,-1006.972,21.1,-1839.9,0.0476,-0.0326,0.0964,5
+"24","m24","2D AR1","Estimate mean M","None",TRUE,TRUE,1.16,-1009.402,18.2,-1842.8,0.0098,-0.0542,0.128,5
+"25","m25","IID","Estimate mean M","IID",FALSE,FALSE,2.47,Inf,NA,NA,NA,NA,NA,5
+"26","m26","AR1 (age)","Estimate mean M","IID",FALSE,FALSE,1.54,Inf,NA,NA,NA,NA,NA,5
+"27","m27","AR1 (year)","Estimate mean M","IID",FALSE,FALSE,0.43,Inf,NA,NA,NA,NA,NA,5
+"28","m28","2D AR1","Estimate mean M","IID",FALSE,FALSE,1.12,Inf,NA,NA,NA,NA,NA,5
+"29","m29","IID","Estimate mean M","AR1 (age)",TRUE,TRUE,1.57,-1004.637,27.7,-1833.3,0.0034,-0.061,0.108,5
+"30","m30","AR1 (age)","Estimate mean M","AR1 (age)",TRUE,TRUE,1.38,-1008.87,26.1,-1834.9,-0.1044,-0.1015,0.1555,5
+"31","m31","AR1 (year)","Estimate mean M","AR1 (age)",TRUE,TRUE,3.15,-1006.972,25.1,-1835.9,0.0477,-0.0326,0.0964,3
+"32","m32","2D AR1","Estimate mean M","AR1 (age)",TRUE,TRUE,4.2,-1010.982,19,-1842,-0.0705,-0.0666,0.1265,4
+"33","m33","IID","Estimate mean M","AR1 (year)",TRUE,TRUE,1.14,-1003.043,30.9,-1830.1,0.601,0.206,-0.0026,5
+"34","m34","AR1 (age)","Estimate mean M","AR1 (year)",TRUE,TRUE,1.23,-1006.13,26.7,-1834.3,0.3983,0.1486,0.0071,5
+"35","m35","AR1 (year)","Estimate mean M","AR1 (year)",TRUE,TRUE,1.33,-1006.972,25.1,-1835.9,0.0476,-0.0326,0.0964,5
+"36","m36","2D AR1","Estimate mean M","AR1 (year)",TRUE,TRUE,3.65,-1009.402,22.2,-1838.8,0.0098,-0.0542,0.128,4
+"37","m37","IID","Estimate mean M","2D AR1",TRUE,TRUE,1.64,-1016.261,6.5,-1854.5,-0.5338,-0.2933,0.537,5
+"38","m38","AR1 (age)","Estimate mean M","2D AR1",TRUE,TRUE,1.73,-1017.747,5.5,-1855.5,-0.7098,-0.4115,0.9183,5
+"39","m39","AR1 (year)","Estimate mean M","2D AR1",TRUE,TRUE,3.49,-1016.775,7.5,-1853.5,-0.6956,-0.3957,0.7626,2
+"40","m40","2D AR1","Estimate mean M","2D AR1",FALSE,FALSE,0.3,Inf,NA,NA,NA,NA,NA,5

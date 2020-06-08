@@ -1,0 +1,33 @@
+"Model","NAA_cor","NAA_sigma","GSI_mod","GSI_obserr","GSI_how","sel_ind1","sel_ind3","pdHess","runtime","NLL","dAIC","minAIC"
+"m1","iid","rec+1","rw","est",0,"Logistic","Logistic",TRUE,0.36,-830.944,27.9,-1525.9
+"m2","ar1_a","rec+1","rw","est",0,"Logistic","Logistic",TRUE,0.71,-836.833,18.1,-1535.7
+"m3","ar1_y","rec+1","rw","est",0,NA,NA,FALSE,NA,NA,NA,NA
+"m4","2dar1","rec+1","rw","est",0,NA,NA,FALSE,NA,NA,NA,NA
+"m5","iid","rec+1","rw","est",2,"Logistic","Logistic",TRUE,0.35,-838.033,15.7,-1538.1
+"m6","ar1_a","rec+1","rw","est",2,"Logistic","Logistic",TRUE,0.36,-843.792,6.2,-1547.6
+"m7","ar1_y","rec+1","rw","est",2,"Logistic","Age-specific (3,6)",TRUE,0.83,-845.265,9.3,-1544.5
+"m8","2dar1","rec+1","rw","est",2,NA,NA,FALSE,NA,NA,NA,NA
+"m9","iid","rec+1","ar1","est",0,"Logistic","Logistic",TRUE,0.32,-834.847,22.1,-1531.7
+"m10","ar1_a","rec+1","ar1","est",0,"Logistic","Logistic",TRUE,0.67,-840.737,12.3,-1541.5
+"m11","ar1_y","rec+1","ar1","est",0,"Age-specific","Age-specific (3,6)",TRUE,0.76,-844.872,18.1,-1535.7
+"m12","2dar1","rec+1","ar1","est",0,"Age-specific","Age-specific (3,6)",TRUE,0.87,-847.537,14.7,-1539.1
+"m13","iid","rec+1","ar1","est",2,"Logistic","Logistic",TRUE,0.34,-841.843,10.1,-1543.7
+"m14","ar1_a","rec+1","ar1","est",2,"Logistic","Logistic",TRUE,0.35,-847.606,0.6,-1553.2
+"m15","ar1_y","rec+1","ar1","est",2,"Age-specific","Age-specific (3,6)",TRUE,0.82,-849.455,10.9,-1542.9
+"m16","2dar1","rec+1","ar1","est",2,"Age-specific","Age-specific (3,6)",TRUE,0.97,-852.423,7,-1546.8
+"m17","iid","rec+1","rw","data",0,"Logistic","Logistic",TRUE,0.34,-831.028,29.7,-1524.1
+"m18","ar1_a","rec+1","rw","data",0,"Logistic","Logistic",TRUE,0.7,-836.917,20,-1533.8
+"m19","ar1_y","rec+1","rw","data",0,"Age-specific","Age-specific (3,6)",TRUE,0.79,-846.367,11.1,-1542.7
+"m20","2dar1","rec+1","rw","data",0,NA,NA,FALSE,NA,NA,NA,NA
+"m21","iid","rec+1","rw","data",2,"Logistic","Logistic",TRUE,0.4,-841.479,10.8,-1543
+"m22","ar1_a","rec+1","rw","data",2,"Logistic","Logistic",TRUE,0.41,-847.906,0,-1553.8
+"m23","ar1_y","rec+1","rw","data",2,"Age-specific","Age-specific (3,6)",TRUE,0.84,-850.372,5.1,-1548.7
+"m24","2dar1","rec+1","rw","data",2,NA,NA,FALSE,NA,NA,NA,NA
+"m25","iid","rec+1","ar1","data",0,"Logistic","Logistic",TRUE,0.36,-834.881,24,-1529.8
+"m26","ar1_a","rec+1","ar1","data",0,"Logistic","Logistic",TRUE,0.78,-840.771,14.3,-1539.5
+"m27","ar1_y","rec+1","ar1","data",0,"Age-specific","Age-specific (3,6)",TRUE,0.81,-844.997,15.8,-1538
+"m28","2dar1","rec+1","ar1","data",0,NA,NA,FALSE,NA,NA,NA,NA
+"m29","iid","rec+1","ar1","data",2,"Logistic","Logistic",TRUE,0.41,-842.318,11.2,-1542.6
+"m30","ar1_a","rec+1","ar1","data",2,"Logistic","Logistic",TRUE,0.41,-848.896,0,-1553.8
+"m31","ar1_y","rec+1","ar1","data",2,"Age-specific","Age-specific (3,6)",TRUE,0.87,-848.97,9.9,-1543.9
+"m32","2dar1","rec+1","ar1","data",2,"Logistic","Age-specific (3,6)",TRUE,1,-846.496,8.8,-1545
