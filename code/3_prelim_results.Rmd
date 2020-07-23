@@ -797,7 +797,7 @@ Open to suggestions on how and what to show:
 mod.list <- c(here("results","dat_2019","bias_correct_oe","NAA","m1.rds"),
               here("results","dat_2019","bias_correct_oe","NAA","m6.rds"),
               here("results","dat_2019","bias_correct_oe","M","m5.rds"),
-              here("results","dat_2019","bias_correct_oe","NAA_M","m2.rds"),
+              here("results","dat_2019","bias_correct_oe","NAA_M_iid","m5.rds"),
               here("results","dat_2019","bias_correct_oe","NAA_M_CPI","m22.rds"))
 mods <- lapply(mod.list, readRDS)
 mod.labs <- c("base","NAA", "M", "NAA + M", "NAA + M + CPI")
@@ -888,7 +888,7 @@ Point of Figs. 6-7 is to show the impact of model choice on stock status. Could 
 mod.list <- c(here("results","dat_2019","bias_correct_oe","NAA","m1.rds"),
               here("results","dat_2019","bias_correct_oe","NAA","m6.rds"),
               here("results","dat_2019","bias_correct_oe","M","m5.rds"),
-              here("results","dat_2019","bias_correct_oe","NAA_M","m2.rds"),
+              here("results","dat_2019","bias_correct_oe","NAA_M_iid","m5.rds"),
               here("results","dat_2019","bias_correct_oe","NAA_M_CPI","m22.rds"))
 mods <- lapply(mod.list, readRDS)
 mod.labs <- c("base","NAA", "M", "NAA + M", "NAA + M + CPI")
