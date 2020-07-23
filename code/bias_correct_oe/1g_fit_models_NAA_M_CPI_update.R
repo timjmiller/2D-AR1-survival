@@ -8,7 +8,11 @@
 #  6 selectivity blocks for fleet
 #  change from age-specific to logistic sel
 
-# source("/home/bstock/Documents/ms/2D-AR1-survival/code/bias_correct_oe/1e_fit_models_NAA_M_iid.R")
+# ------------------------------------------
+# Update only models 14, 22, 24 (only used in paper)
+# -----------------------------------------
+
+# source("/home/bstock/Documents/ms/2D-AR1-survival/code/bias_correct_oe/1g_fit_models_NAA_M_CPI.R")
 
 # remotes::install_github("noaa-edab/ecodata",build_vignettes=TRUE)
 # remotes::install_github("timjmiller/wham", ref="om_mode", dependencies=TRUE)
@@ -23,26 +27,51 @@ library(tidyverse)
 asap3 <- read_asap3_dat(here("data","SNEMAYT_2019_rmlarval.dat"))
 # asap3_rmblocks <- read_asap3_dat(here("data","SNEMAYT_2019_rmlarval_rmblocks.dat"))
 
-df.mods <- data.frame(M_re = rep(c('none','iid','ar1_a','ar1_y','2dar1'),2),
-                      est_M = rep(c(FALSE,TRUE),each=5), stringsAsFactors=FALSE)
+# created in 0_explore_data.R
+# cpi <- read.csv(here("data","CPI_v2.csv"), header=TRUE) 
+cpi <- read.csv(here("data","CPI_v3.csv"), header=TRUE) 
+colnames(cpi) <- c("Year","CPI","CPI_sigma")
+cpi$use <- 1
+cpi$use[is.nan(cpi$CPI)] = 0 # don't use 2017 (NaN, fall survey missing)
+
+df.mods <- data.frame(NAA_re = rep(c(rep('iid',4),rep('2dar1',4),rep('iid',4)),2),
+                      M_re = rep(c(rep('iid',4),rep('iid',4),rep('2dar1',4)),2),
+                      est_M = rep(c(FALSE,FALSE,TRUE,TRUE),6),
+                      CPI_how = rep(rep(c(0,2),6),2),
+                      CPI_mod = c(rep("rw",12),rep("ar1",12)), stringsAsFactors=FALSE)
 n.mods <- dim(df.mods)[1]
 df.mods$Model <- paste0("m",1:n.mods)
 df.mods <- df.mods %>% select(Model, everything()) # moves Model to first col
 df.mods
 
 # run models
-for(m in 1:n.mods){
+# for(m in 1:n.mods){
+for(m in c(14,22,24)){
   if(df.mods[m,"est_M"]){
-    M_list <- list(model="constant", est_ages=1, re=df.mods$M_re[m])
+    M_list <- list(model="constant", est_ages=1, re=df.mods$M_re[m], initial_means=0.25)
   } else {
     M_list <- list(re=df.mods$M_re[m])
   }  
 
+  ecov <- list(
+    label = "CPI",
+    mean = as.matrix(cpi$CPI),
+    # logsigma = "est_1",
+    logsigma = matrix(log(cpi$CPI_sigma), ncol=1, nrow=dim(cpi)[1]),
+    year = cpi$Year,
+    use_obs = matrix(cpi$use, ncol=1, nrow=dim(cpi)[1]), # use all obs except 2017 (missing)
+    lag = 1, # CPI in year t affects Rec in year t + 1
+    process_model = df.mods$CPI_mod[m],
+    where = "recruit", # CPI affects recruitment
+    how = df.mods$CPI_how[m], # 0 = no effect (but still fit Ecov to compare AIC), 2 = limiting
+    link_model = "linear")
+
   # blocks 1, 3, 9 have issues, try age-specific
   input <- prepare_wham_input(asap3, recruit_model = 3, # Bev Holt recruitment
                               model_name = df.mods$Model[m],                         
-                              NAA_re = list(cor="iid", sigma="rec+1"),
+                              NAA_re = list(cor=df.mods$NAA_re[m], sigma="rec+1"),
                               M = M_list,
+                              ecov = ecov,
                               selectivity=list(model=c("age-specific","logistic","age-specific","logistic","logistic","logistic","logistic","logistic","age-specific"),
                                  initial_pars=list(c(.01,1,1,1,1,1), c(3,3), c(.01,1,1,1,1,1), c(3,3), c(3,3), c(3,3), c(3,3), c(3,3), c(.01,.25,1,1,1,1)),
                                  fix_pars=list(2:6, NULL, 2:6, NULL, NULL, NULL, NULL, NULL, 3:6))) 
@@ -69,7 +98,7 @@ for(m in 1:n.mods){
 
   # Save model
   if(exists("err")) rm("err") # need to clean this up
-  saveRDS(mod, file=here("results","dat_2019","bias_correct_oe","NAA_M_iid",paste0(df.mods$Model[m],".rds")))
+  saveRDS(mod, file=here("results","dat_2019","bias_correct_oe","NAA_M_CPI",paste0(df.mods$Model[m],".rds")))
 }
 
 # if(exists("err")) rm("err") # need to clean this up

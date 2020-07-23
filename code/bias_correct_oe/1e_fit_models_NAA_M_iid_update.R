@@ -8,7 +8,11 @@
 #  6 selectivity blocks for fleet
 #  change from age-specific to logistic sel
 
-# source("/home/bstock/Documents/ms/2D-AR1-survival/code/bias_correct_oe/1e_fit_models_NAA_M_iid.R")
+# ------------------------------------------
+# Update only models 2, 5, 7, 10 (only used in paper)
+# -----------------------------------------
+
+# source("/home/bstock/Documents/ms/2D-AR1-survival/code/bias_correct_oe/1e_fit_models_NAA_M_iid_update.R")
 
 # remotes::install_github("noaa-edab/ecodata",build_vignettes=TRUE)
 # remotes::install_github("timjmiller/wham", ref="om_mode", dependencies=TRUE)
@@ -31,7 +35,8 @@ df.mods <- df.mods %>% select(Model, everything()) # moves Model to first col
 df.mods
 
 # run models
-for(m in 1:n.mods){
+# for(m in 1:n.mods){
+for(m in c(2,5,7,10)){  
   if(df.mods[m,"est_M"]){
     M_list <- list(model="constant", est_ages=1, re=df.mods$M_re[m])
   } else {

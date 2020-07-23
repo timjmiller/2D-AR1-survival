@@ -8,7 +8,11 @@
 #  6 selectivity blocks for fleet
 #  change from age-specific to logistic sel
 
-# source("/home/bstock/Documents/ms/2D-AR1-survival/code/bias_correct_oe/1e_fit_models_NAA_M_iid.R")
+# ------------------------------------------
+# Update only models 2, 5, 7, 10 (only used in paper)
+# -----------------------------------------
+
+# source("/home/bstock/Documents/ms/2D-AR1-survival/code/bias_correct_oe/1d_fit_models_NAA_M_update.R")
 
 # remotes::install_github("noaa-edab/ecodata",build_vignettes=TRUE)
 # remotes::install_github("timjmiller/wham", ref="om_mode", dependencies=TRUE)
@@ -31,7 +35,8 @@ df.mods <- df.mods %>% select(Model, everything()) # moves Model to first col
 df.mods
 
 # run models
-for(m in 1:n.mods){
+# for(m in 1:n.mods){
+for(m in c(2,5,7,10)){  
   if(df.mods[m,"est_M"]){
     M_list <- list(model="constant", est_ages=1, re=df.mods$M_re[m])
   } else {
@@ -41,7 +46,7 @@ for(m in 1:n.mods){
   # blocks 1, 3, 9 have issues, try age-specific
   input <- prepare_wham_input(asap3, recruit_model = 3, # Bev Holt recruitment
                               model_name = df.mods$Model[m],                         
-                              NAA_re = list(cor="iid", sigma="rec+1"),
+                              NAA_re = list(cor="2dar1", sigma="rec+1"),
                               M = M_list,
                               selectivity=list(model=c("age-specific","logistic","age-specific","logistic","logistic","logistic","logistic","logistic","age-specific"),
                                  initial_pars=list(c(.01,1,1,1,1,1), c(3,3), c(.01,1,1,1,1,1), c(3,3), c(3,3), c(3,3), c(3,3), c(3,3), c(.01,.25,1,1,1,1)),
@@ -69,7 +74,7 @@ for(m in 1:n.mods){
 
   # Save model
   if(exists("err")) rm("err") # need to clean this up
-  saveRDS(mod, file=here("results","dat_2019","bias_correct_oe","NAA_M_iid",paste0(df.mods$Model[m],".rds")))
+  saveRDS(mod, file=here("results","dat_2019","bias_correct_oe","NAA_M",paste0(df.mods$Model[m],".rds")))
 }
 
 # if(exists("err")) rm("err") # need to clean this up

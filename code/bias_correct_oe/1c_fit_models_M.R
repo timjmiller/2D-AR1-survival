@@ -11,11 +11,11 @@
 # source("/home/bstock/Documents/ms/2D-AR1-survival/code/bias_correct_oe/1c_fit_models_M.R")
 
 # remotes::install_github("noaa-edab/ecodata",build_vignettes=TRUE)
-# remotes::install_github("timjmiller/wham", dependencies=TRUE)
+# remotes::install_github("timjmiller/wham", ref="om_mode", dependencies=TRUE)
 library(here)
 library(wham) # https://timjmiller.github.io/wham
 library(tidyverse)
-devtools::load_all("/home/bstock/Documents/wham")
+# devtools::load_all("/home/bstock/Documents/wham")
 
 # set up wham
 # 2019 assessment from https://www.nefsc.noaa.gov/saw/sasi/sasi_report_options.php

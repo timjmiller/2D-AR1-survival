@@ -1,15 +1,19 @@
 ---
 title: "2D AR1 random effects on NAA vs. M (+CPI)"
-output: html_document
+output:
+  html_document:
+    df_print: paged
+    self_contained: no
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+```{r setup, include=FALSE, cache = FALSE}
+knitr::opts_chunk$set(echo = FALSE, dpi=300, dev = c('pdf', 'png'), fig.align = 'center')
 library(here)
 library(wham)
 library(tidyverse)
-devtools::load_all("/home/bstock/Documents/wham")
-library(kableExtra)
+# devtools::load_all("/home/bstock/Documents/wham")
+# library(kableExtra)
+library(knitr)
 library(ggsci)
 library(data.table)
 ```
@@ -75,15 +79,47 @@ df.aic$dAIC <- round(df.aic$AIC - minAIC,1)
 df.mods <- cbind(df.mods, df.aic)
 rownames(df.mods) <- NULL
 
+df.mods$Model <- paste0("NAA-",1:6)
+tochar <- function(vec2){
+  if(sum(vec2)==0){
+    x <- "---"
+  } else {
+    x <- paste0(format(round(vec2[1],2), nsmall=2), " (", format(round(vec2[2],2), nsmall=2),")")
+  }
+  return(x)
+}
+naasig <- lapply(mods, function(x) matrix(summary(x$sdrep)[rownames(summary(x$sdrep))=="NAA_sigma",], ncol=2))
+df.mods$sig_R <- sapply(naasig, function(x) tochar(x[1,]))
+df.mods$sig_a <- c("---","---",sapply(naasig[3:6], function(x) tochar(x[2,])))
+naarho_y <- lapply(mods, function(x) matrix(summary(x$sdrep)[rownames(summary(x$sdrep))=="NAA_rho_y",], ncol=2))
+df.mods$rho_y <- sapply(naarho_y, function(x) tochar(x[1,]))
+naarho_a <- lapply(mods, function(x) matrix(summary(x$sdrep)[rownames(summary(x$sdrep))=="NAA_rho_a",], ncol=2))
+df.mods$rho_a <- sapply(naarho_a, function(x) tochar(x[1,]))
+
+# dplyr::recode(df.mods$Model, m1="NAA-1", m2="NAA-2", m3="NAA-3", m4="NAA-4", m5="NAA-5", m6="NAA-6")
+# df.mods$NAA_cor <- c("---","$\\rho_{y}$","---","$\\rho_{a}$","$\\rho_{y}$","$\\rho_{a}, \\rho_{y}$")
+# df.mods$NAA_sigma <- c("$\\sigma_{R}$","$\\sigma_{R}$","$\\sigma_{R}, \\sigma_{a}$","$\\sigma_{R}, \\sigma_{a}$","$\\sigma_{R}, \\sigma_{a}$","$\\sigma_{R}, \\sigma_{a}$")
+df.mods <- within(df.mods, rm(NAA_cor,NAA_sigma,conv,runtime,pdHess))
+df.mods <- df.mods[,c(1,8:11,2,4,3,5:7)]
+
 # posdef = which(vign6_res$pdHess == TRUE)
 thebest = which(df.mods$dAIC == 0)
 df.mods %>%
-  select(-one_of("pdHess")) %>% 
-  dplyr::rename("Converged"="conv", "Runtime\n(min)"="runtime", "$\\Delta AIC$"="dAIC",
-         "$\\rho_{R}$"="rho_R", "$\\rho_{SSB}$"="rho_SSB", "$\\rho_{\\overline{F}}$"="rho_Fbar") %>%
-  kable(escape = F) %>%
-  kable_styling(bootstrap_options = c("condensed","responsive")) %>%
-  row_spec(thebest, background = gray.colors(10,end=0.95)[10])
+  # select(-one_of("pdHess")) %>% 
+  # dplyr::rename("Variance\nparameters"="NAA_sigma", "Correlation\nparameters"="NAA_cor", "$\\Delta AIC$"="dAIC",  
+  #              # "Converged"="conv", "Runtime\n(min)"="runtime", 
+  #               "-log$(\\mathcal{L})$"="NLL","$\\rho_{R}$"="rho_R", "$\\rho_{SSB}$"="rho_SSB", "$\\rho_{\\overline{F}}$"="rho_Fbar") %>%
+  dplyr::rename("$\\sigma_R$"="sig_R", "$\\sigma_a$"="sig_a", 
+               "$\\rho_{year}$"="rho_y", "$\\rho_{age}$"="rho_a",
+               # "Converged"="conv", "Runtime\n(min)"="runtime", 
+               "$\\Delta AIC$"="dAIC", "-log$(\\mathcal{L})$"="NLL",
+               # "Mohn's $\\rho_{R}$"="rho_R", "Mohn's $\\rho_{SSB}$"="rho_SSB", "Mohn's $\\rho_{\\overline{F}}$"="rho_Fbar") %>%
+               "Mohn's $\\rho_{R}$"="rho_R", "Mohn's $\\rho_{SSB}$"="rho_SSB", "Mohn's $\\rho_{F}$"="rho_Fbar") %>%
+  kable(escape = F)
+  # kable(escape = F) %>%
+  # kable_styling(bootstrap_options = c("condensed","responsive"))
+  # kable_styling(bootstrap_options = c("condensed","responsive")) %>%
+  # row_spec(thebest, background = gray.colors(10,end=0.95)[10])
   # row_spec(thebest, background = gray.colors(10,end=0.95)[10]) %>%
   # row_spec(thebest, bold=TRUE)
 ```
@@ -119,16 +155,57 @@ df.aic$dAIC <- round(df.aic$AIC - minAIC,1)
 df.mods <- cbind(df.mods, df.aic)
 rownames(df.mods) <- NULL
 
+df.mods$Model <- paste0("M-",1:n.mods)
+tochar <- function(x){
+  if(!is.null(x)){
+    if(nrow(x)==0){
+      y <- "---"
+    } else {
+      if(sum(x)==0){
+        y <- "---"
+      } else {
+        if(x[,2] == 0){
+          y <- "---"
+          # y <- paste0(format(round(x[1],2), nsmall=2))
+        } else {
+          y <- paste0(format(round(x[1],2), nsmall=2), " (", format(round(x[2],2), nsmall=2),")")
+        }
+      }
+    }
+  } else {
+    y <- "*"
+  }
+  return(y)
+}
+
+meanM <- lapply(mods, function(x) matrix(summary(x$sdrep)[rownames(summary(x$sdrep))=="mean_M",], ncol=2))
+df.mods$meanM <- sapply(meanM, function(x) tochar(x))
+sigM <- lapply(mods, function(x) matrix(summary(x$sdrep)[rownames(summary(x$sdrep))=="sigma_M",], ncol=2))
+df.mods$sigM <- sapply(sigM, function(x) tochar(x))
+Mrho_y <- lapply(mods, function(x) matrix(summary(x$sdrep)[rownames(summary(x$sdrep))=="rho_M_y",], ncol=2))
+df.mods$rho_y <- sapply(Mrho_y, function(x) tochar(x))
+Mrho_a <- lapply(mods, function(x) matrix(summary(x$sdrep)[rownames(summary(x$sdrep))=="rho_M_a",], ncol=2))
+df.mods$rho_a <- sapply(Mrho_a, function(x) tochar(x))
+
+df.mods <- within(df.mods, rm(M_re,est_M,conv,runtime,pdHess))
+df.mods <- df.mods[,c(1,8:11,2,4,3,5:7)]
+
 # thebest = which(df.mods$dAIC == 0)
 # thebest = c(5,10)
-thebest = 5
+# thebest = 5
 df.mods %>%
-  select(-one_of("pdHess")) %>% 
-  dplyr::rename("Estimate $\\mu_{M}$"="est_M", "Converged"="conv", "Runtime\n(min)"="runtime", "$\\Delta AIC$"="dAIC",
-         "$\\rho_{R}$"="rho_R", "$\\rho_{SSB}$"="rho_SSB", "$\\rho_{\\overline{F}}$"="rho_Fbar") %>%
-  kable(escape = F) %>%
-  kable_styling(bootstrap_options = c("condensed","responsive")) %>%
-  row_spec(thebest, background = gray.colors(10,end=0.95)[10])
+  # select(-one_of("pdHess")) %>% 
+  dplyr::rename("$\\sigma_M$"="sigM", "$\\mu_M$"="meanM", 
+               "$\\rho_{year}$"="rho_y", "$\\rho_{age}$"="rho_a",
+               # "Converged"="conv", "Runtime\n(min)"="runtime", 
+               "$\\Delta AIC$"="dAIC", "-log$(\\mathcal{L})$"="NLL",
+               # "Mohn's $\\rho_{R}$"="rho_R", "Mohn's $\\rho_{SSB}$"="rho_SSB", "Mohn's $\\rho_{\\overline{F}}$"="rho_Fbar") %>%
+               "Mohn's $\\rho_{R}$"="rho_R", "Mohn's $\\rho_{SSB}$"="rho_SSB", "Mohn's $\\rho_{F}$"="rho_Fbar") %>%
+  kable(escape = F)
+  # kable(escape = F) %>%
+  # kable_styling(bootstrap_options = c("condensed","responsive"))
+  # kable_styling(bootstrap_options = c("condensed","responsive")) %>%
+  # row_spec(thebest, background = gray.colors(10,end=0.95)[10])
   # row_spec(thebest, background = gray.colors(10,end=0.95)[10]) %>%
   # row_spec(thebest, bold=TRUE)
 ```
@@ -147,22 +224,86 @@ df.mods1 <- df.mods1 %>% select(Model, NAA_re, everything()) %>% filter(M_re %in
 
 # load models
 mod.list <- here("results","dat_2019","bias_correct_oe","NAA_M",paste0(df.mods1$Model,".rds"))
-mods <- lapply(mod.list, readRDS)
+mods1 <- lapply(mod.list, readRDS)
+
+tochar <- function(x){
+  if(is.null(x)){
+    y <- "*"
+    return(y)
+  } else {
+    if(!is.null(x)){
+      x <- matrix(x, ncol=2)
+      if(nrow(x)==0){
+        y <- "---"
+      } else {
+        if(sum(x)==0){
+          y <- "---"
+        } else {
+          if(x[,2] == 0){
+            y <- "---"
+            # y <- paste0(format(round(x[1],2), nsmall=2))
+          } else {
+            y <- paste0(format(round(x[1],2), nsmall=2), " (", format(round(x[2],2), nsmall=2),")")
+          }
+        }
+      }
+    }
+  }
+  return(y)
+}
+extract_sdrep <- function(mod, var){
+  if(mod$is_sdrep) if(!mod$na_sdrep){
+      matrix(summary(mod$sdrep)[rownames(summary(mod$sdrep))==var,], ncol=2)
+  } else {
+    y <- NULL
+  }
+}
+
+# # get NAA_re par estimates
+# # naasig <- lapply(mods1, function(x) matrix(summary(x$sdrep)[rownames(summary(x$sdrep))=="NAA_sigma",], ncol=2))
+# naasig <- lapply(mods1, extract_sdrep, "NAA_sigma")
+# # naarho_y <- lapply(mods1, function(x) matrix(summary(x$sdrep)[rownames(summary(x$sdrep))=="NAA_rho_y",], ncol=2))
+# naarho_y <- lapply(mods1, extract_sdrep, "NAA_rho_y")
+# # naarho_a <- lapply(mods1, function(x) matrix(summary(x$sdrep)[rownames(summary(x$sdrep))=="NAA_rho_a",], ncol=2))
+# naarho_a <- lapply(mods1, extract_sdrep, "NAA_rho_a")
+# df.mods1$sig_R <- sapply(naasig, function(x) tochar(x[1,]))
+# df.mods1$sig_a <- sapply(naasig, function(x) tochar(x[2,]))
+# df.mods1$rho_y <- sapply(naarho_y, function(x) tochar(x))
+# df.mods1$rho_a <- sapply(naarho_a, function(x) tochar(x))
+# 
+# # get M_re par estimates
+# meanM <- lapply(mods1, extract_sdrep, "mean_M")
+# sigM <- lapply(mods1, extract_sdrep, "sigma_M")
+# Mrho_y <- lapply(mods1, extract_sdrep, "rho_M_y")
+# Mrho_a <- lapply(mods1, extract_sdrep, "rho_M_a")
+# # meanM <- lapply(mods1, function(x) matrix(summary(x$sdrep)[rownames(summary(x$sdrep))=="mean_M",], ncol=2))
+# df.mods1$meanM <- sapply(meanM, function(x) tochar(x))
+# # sigM <- lapply(mods1, function(x) matrix(summary(x$sdrep)[rownames(summary(x$sdrep))=="sigma_M",], ncol=2))
+# df.mods1$sigM <- sapply(sigM, function(x) tochar(x))
+# # Mrho_y <- lapply(mods1, function(x) matrix(summary(x$sdrep)[rownames(summary(x$sdrep))=="rho_M_y",], ncol=2))
+# df.mods1$Mrho_y <- sapply(Mrho_y, function(x) tochar(x))
+# # Mrho_a <- lapply(mods1, function(x) matrix(summary(x$sdrep)[rownames(summary(x$sdrep))=="rho_M_a",], ncol=2))
+# df.mods1$Mrho_a <- sapply(Mrho_a, function(x) tochar(x))
+# 
+# # correct * vs. ---
+# df.mods1$meanM[2] = "---"
+# df.mods1$Mrho_y[3] = df.mods1$Mrho_a[3] = "---"
 
 # calc results table
-opt_conv = 1-sapply(mods, function(x) x$opt$convergence)
-ok_sdrep = sapply(mods, function(x) if(x$na_sdrep==FALSE & !is.na(x$na_sdrep)) 1 else 0)
+opt_conv = 1-sapply(mods1, function(x) x$opt$convergence)
+ok_sdrep = sapply(mods1, function(x) if(x$na_sdrep==FALSE & !is.na(x$na_sdrep)) 1 else 0)
 df.mods1$conv <- as.logical(opt_conv)
 df.mods1$pdHess <- as.logical(ok_sdrep)
-df.mods1$runtime <- sapply(mods, function(x) x$runtime)
-df.mods1$NLL <- sapply(mods, function(x) round(x$opt$objective,3))
-df.aic <- as.data.frame(compare_wham_models(mods, sort=FALSE, calc.rho=T, do.print=F)$tab)
+df.mods1$runtime <- sapply(mods1, function(x) x$runtime)
+df.mods1$NLL <- sapply(mods1, function(x) round(x$opt$objective,3))
+df.aic <- as.data.frame(compare_wham_models(mods1, sort=FALSE, calc.rho=T, do.print=F)$tab)
 df.aic$AIC[df.mods1$pdHess==FALSE] <- NA
 minAIC <- min(df.aic$AIC, na.rm=T)
 df.aic$dAIC <- round(df.aic$AIC - minAIC,1)
 df.mods1 <- cbind(df.mods1, df.aic)
 rownames(df.mods1) <- NULL
 
+# --------------------------------------------------------------------------------------------
 df.mods2 <- data.frame(M_re = rep(c('none','iid','ar1_a','ar1_y','2dar1'),2),
                       est_M = rep(c(FALSE,TRUE),each=5), stringsAsFactors=FALSE)
 n.mods <- dim(df.mods2)[1]
@@ -172,16 +313,40 @@ df.mods2 <- df.mods2 %>% select(Model, NAA_re, everything()) %>% filter(M_re %in
 
 # load models
 mod.list <- here("results","dat_2019","bias_correct_oe","NAA_M_iid",paste0(df.mods2$Model,".rds"))
-mods <- lapply(mod.list, readRDS)
+mods2 <- lapply(mod.list, readRDS)
+
+# # get NAA_re par estimates
+# naasig <- lapply(mods2, extract_sdrep, "NAA_sigma")
+# naarho_y <- lapply(mods2, extract_sdrep, "NAA_rho_y")
+# naarho_a <- lapply(mods2, extract_sdrep, "NAA_rho_a")
+# df.mods2$sig_R <- sapply(naasig, function(x) tochar(x[1,]))
+# df.mods2$sig_a <- sapply(naasig, function(x) tochar(x[2,]))
+# df.mods2$rho_y <- sapply(naarho_y, function(x) tochar(x))
+# df.mods2$rho_a <- sapply(naarho_a, function(x) tochar(x))
+# 
+# # get M_re par estimates
+# meanM <- lapply(mods2, extract_sdrep, "mean_M")
+# sigM <- lapply(mods2, extract_sdrep, "sigma_M")
+# Mrho_y <- lapply(mods2, extract_sdrep, "rho_M_y")
+# Mrho_a <- lapply(mods2, extract_sdrep, "rho_M_a")
+# df.mods2$meanM <- sapply(meanM, function(x) tochar(x))
+# df.mods2$sigM <- sapply(sigM, function(x) tochar(x))
+# df.mods2$Mrho_y <- sapply(Mrho_y, function(x) tochar(x))
+# df.mods2$Mrho_a <- sapply(Mrho_a, function(x) tochar(x))
+# 
+# # correct * vs. ---
+# df.mods2$rho_y[3] = df.mods2$rho_a[3] = "---"
+# df.mods2$meanM[2] = "---"
+# df.mods2$Mrho_y[3] = df.mods2$Mrho_a[3] = "---"
 
 # calc results table
-opt_conv = 1-sapply(mods, function(x) x$opt$convergence)
-ok_sdrep = sapply(mods, function(x) if(x$na_sdrep==FALSE & !is.na(x$na_sdrep)) 1 else 0)
+opt_conv = 1-sapply(mods2, function(x) x$opt$convergence)
+ok_sdrep = sapply(mods2, function(x) if(x$na_sdrep==FALSE & !is.na(x$na_sdrep)) 1 else 0)
 df.mods2$conv <- as.logical(opt_conv)
 df.mods2$pdHess <- as.logical(ok_sdrep)
-df.mods2$runtime <- sapply(mods, function(x) x$runtime)
-df.mods2$NLL <- sapply(mods, function(x) round(x$opt$objective,3))
-df.aic <- as.data.frame(compare_wham_models(mods, sort=FALSE, calc.rho=T, do.print=F)$tab)
+df.mods2$runtime <- sapply(mods2, function(x) x$runtime)
+df.mods2$NLL <- sapply(mods2, function(x) round(x$opt$objective,3))
+df.aic <- as.data.frame(compare_wham_models(mods2, sort=FALSE, calc.rho=T, do.print=F)$tab)
 df.aic$AIC[df.mods2$pdHess==FALSE] <- NA
 minAIC <- min(df.aic$AIC, na.rm=T)
 df.aic$dAIC <- round(df.aic$AIC - minAIC,1)
@@ -191,21 +356,50 @@ rownames(df.mods2) <- NULL
 # -----------------------------------------------------------
 # combine two tables
 df.mods <- rbind(df.mods2, df.mods1)
-df.mods$Model <- paste0("m",1:dim(df.mods)[1])
-df.mods[df.mods$pdHess==FALSE, 8:13] = NA
+df.mods$Model <- paste0("NAA-M-",1:dim(df.mods)[1])
+df.mods[df.mods$pdHess==FALSE, c("NLL","dAIC","AIC","rho_R","rho_SSB","rho_Fbar")] = NA
 minAIC <- min(df.mods$AIC, na.rm=T)
 df.mods$dAIC <- df.mods$AIC - minAIC
+# df.mods <- within(df.mods, rm(NAA_re,M_re,est_M,conv,runtime,pdHess))
+df.mods <- within(df.mods, rm(conv,runtime,pdHess))
+# df.mods <- df.mods[,c(1,8:11,2,4,3,5:7)]
+df.mods$NLL <- paste0(format(round(df.mods$NLL,3), nsmall=3))
+df.mods$dAIC <- paste0(format(round(df.mods$dAIC,1), nsmall=1))
+df.mods[is.na(df.mods)] = ""
+df.mods[df.mods == "       NA"] = ""
+df.mods[df.mods == "  NA"] = ""
+df.mods[df.mods == "iid"] = "IID"
+df.mods[df.mods == "2dar1"] = "2D AR1"
+df.mods[df.mods == FALSE] = "No"
+df.mods[df.mods == TRUE] = "Yes"
+df.mods <- df.mods[,c(1:5,7,6,8:10)]
 
 # thebest = which(df.mods$dAIC == 0)
 # thebest = c(2,5)
-thebest = 2
+# thebest = 2
 df.mods %>%
-  select(-one_of("pdHess")) %>% 
-  dplyr::rename("Estimate $\\mu_{M}$"="est_M", "Converged"="conv", "Runtime\n(min)"="runtime", "$\\Delta AIC$"="dAIC",
-         "$\\rho_{R}$"="rho_R", "$\\rho_{SSB}$"="rho_SSB", "$\\rho_{\\overline{F}}$"="rho_Fbar") %>%
-  kable(escape = F) %>%
-  kable_styling(bootstrap_options = c("condensed","responsive")) %>%
-  row_spec(thebest, background = gray.colors(10,end=0.95)[10])
+  # select(-one_of("pdHess")) %>% 
+  # dplyr::rename("$\\sigma_R$"="sig_R", "$\\sigma_a$"="sig_a", 
+  #              "$\\rho_{year}$"="rho_y", "$\\rho_{age}$"="rho_a",
+  #              "$\\sigma_M$"="sigM", "$\\mu_M$"="meanM", 
+  #              "$\\rho^M_{year}$"="Mrho_y", "$\\rho^M_{age}$"="Mrho_a",
+  #              # "Converged"="conv", "Runtime\n(min)"="runtime", 
+  #              "$\\Delta AIC$"="dAIC", "-log$(\\mathcal{L})$"="NLL",
+  #              "Mohn's $\\rho_{R}$"="rho_R", "Mohn's $\\rho_{SSB}$"="rho_SSB", "Mohn's $\\rho_{\\overline{F}}$"="rho_Fbar") %>%
+  # dplyr::rename("Estimate $\\mu_{M}$"="est_M","Random effects\nNAA"="NAA_re","Random effects\nM"="M_re",
+  #              "$\\Delta AIC$"="dAIC", "-log$(\\mathcal{L})$"="NLL",
+  #              "Mohn's $\\rho_{R}$"="rho_R", "Mohn's $\\rho_{SSB}$"="rho_SSB", "Mohn's $\\rho_{\\overline{F}}$"="rho_Fbar") %>%
+  # dplyr::rename("Estimate $\\mu_{M}$"="est_M","Random effects\nNAA"="NAA_re","Random effects\nM"="M_re",
+  #              "$\\Delta AIC$"="dAIC", "-log$(\\mathcal{L})$"="NLL",
+  #              "Mohn's $\\rho_{R}$"="rho_R", "Mohn's $\\rho_{SSB}$"="rho_SSB", "Mohn's $\\rho_{F}$"="rho_Fbar") %>%
+  dplyr::rename("Estimate $\\mu_{M}$"="est_M","Random effects NAA"="NAA_re","Random effects M"="M_re",
+               "$\\Delta AIC$"="dAIC", "-log$(\\mathcal{L})$"="NLL",
+               "Mohn's $\\rho_{R}$"="rho_R", "Mohn's $\\rho_{SSB}$"="rho_SSB", "Mohn's $\\rho_{F}$"="rho_Fbar") %>%
+  kable(escape = F)
+  # kable(escape = F) %>%
+  # kable_styling(bootstrap_options = c("condensed","responsive"))
+  # kable_styling(bootstrap_options = c("condensed","responsive")) %>%
+  # row_spec(thebest, background = gray.colors(10,end=0.95)[10])
   # row_spec(thebest, background = gray.colors(10,end=0.95)[10]) %>%
   # row_spec(thebest, bold=TRUE)
 ```
@@ -249,15 +443,29 @@ df.mods <- cbind(df.mods, df.aic)
 rownames(df.mods) <- NULL
 
 df <- df.mods %>% filter(NAA_re == "iid", CPI_how==2, CPI_mod=='ar1', pdHess==TRUE)
+df$Model <- paste0("NAA-M-CPI-",1:dim(df)[1])
+df[df == "iid"] = "IID"
+df[df == "2dar1"] = "2D AR1"
+df[df == FALSE] = "No"
+df$dAIC[3] = "0.0"
+df[df == TRUE] = "Yes"
+df <- df[,c(1:10,12,11,13:15)]
 
-thebest = 2
+# thebest = 2
 df %>%
-  select(-one_of("pdHess","CPI_how","CPI_mod")) %>% 
-  dplyr::rename("Estimate $\\mu_{M}$"="est_M", "Converged"="conv", "Runtime\n(min)"="runtime", "$\\Delta AIC$"="dAIC",
-         "$\\rho_{R}$"="rho_R", "$\\rho_{SSB}$"="rho_SSB", "$\\rho_{\\overline{F}}$"="rho_Fbar") %>%
-  kable(escape = F) %>%
-  kable_styling(bootstrap_options = c("condensed","responsive")) %>%
-  row_spec(thebest, background = gray.colors(10,end=0.95)[10])
+  # select(-one_of("pdHess","CPI_how","CPI_mod")) %>% 
+  # dplyr::rename("Estimate $\\mu_{M}$"="est_M", "Converged"="conv", "Runtime\n(min)"="runtime", "$\\Delta AIC$"="dAIC",
+  #        "$\\rho_{R}$"="rho_R", "$\\rho_{SSB}$"="rho_SSB", "$\\rho_{\\overline{F}}$"="rho_Fbar") %>%
+  select(-one_of("pdHess","conv","CPI_how","CPI_mod","runtime")) %>% 
+  dplyr::rename("Estimate $\\mu_{M}$"="est_M", "Random effects on NAA"="NAA_re","Random effects on M"="M_re",
+         "$\\Delta AIC$"="dAIC","$\\rho_{R}$"="rho_R", "$\\rho_{SSB}$"="rho_SSB", "$\\rho_{F}$"="rho_Fbar") %>%
+    # dplyr::rename("Estimate $\\mu_{M}$"="est_M", "Random effects on NAA"="NAA_re","Random effects on M"="M_re",
+    #      "$\\Delta AIC$"="dAIC","$\\rho_{R}$"="rho_R", "$\\rho_{SSB}$"="rho_SSB", "$\\rho_{\\overline{F}}$"="rho_Fbar") %>%
+kable(escape = F)
+  # kable(escape = F) %>%
+  # kable_styling(bootstrap_options = c("condensed","responsive"))
+  # kable_styling(bootstrap_options = c("condensed","responsive")) %>%
+  # row_spec(thebest, background = gray.colors(10,end=0.95)[10])
 ```
 
 
@@ -265,7 +473,7 @@ df %>%
 
 #### Fig 1. NAA devs (in models where only NAA are random effects)
 
-```{r}
+```{r, fig.height = 6, fig.width = 7}
 df.mods <- data.frame(NAA_cor = c('iid','ar1_y','iid','ar1_a','ar1_y','2dar1'),
                       NAA_sigma = c('rec','rec','rec+1','rec+1','rec+1','rec+1'), stringsAsFactors=FALSE)
 n.mods <- dim(df.mods)[1]
@@ -276,8 +484,9 @@ df.mods <- df.mods %>% select(Model, everything()) # moves Model to first col
 mod.list <- here("results","dat_2019","bias_correct_oe","NAA",paste0(df.mods$Model,".rds"))
 mods <- lapply(mod.list, readRDS)
 
-df.mods$NAA_cor <- factor(df.mods$NAA_cor, levels=c('iid','ar1_a','ar1_y','2dar1'), labels=c("IID","AR1_a","AR1_y","2D AR1"))
-df.mods$NAA_sigma <- factor(df.mods$NAA_sigma, levels=c('rec','rec+1'), labels=c("RE: Recruit","RE: all NAA"))
+df.mods$Model <- paste0("NAA-",1:n.mods)
+df.mods$NAA_cor <- factor(df.mods$NAA_cor, levels=c('iid','ar1_a','ar1_y','2dar1'), labels=c("IID","AR1[age]","AR1[year]","'2D'~AR1"))
+df.mods$NAA_sigma <- factor(df.mods$NAA_sigma, levels=c('rec','rec+1'), labels=c("Random~effects:~Recruitment","Random~effects:~all~NAA"))
 n_ages <- mods[[1]]$env$data$n_ages
 df.NAA <- data.frame(matrix(NA, nrow=0, ncol=n_ages+3))
 colnames(df.NAA) <- c(paste0("Age_",1:n_ages),"Year","NAA_cor","NAA_sigma")
@@ -294,23 +503,23 @@ df.plot <- df.NAA %>% tidyr::pivot_longer(-c(Year,NAA_cor,NAA_sigma),
           names_prefix = "Age_",
           names_transform = list(Age = as.integer),
           values_to = "NAA_re")
-df.plot$NAA_re[df.plot$NAA_sigma == "RE: Recruit" & df.plot$Age > 1] = 0
+df.plot$NAA_re[df.plot$NAA_sigma == "Random~effects:~Recruitment" & df.plot$Age > 1] = 0
 
 print(ggplot(df.plot, ggplot2::aes(x=Year, y=Age)) +
       geom_tile(aes(fill=NAA_re)) +
       geom_label(aes(x=Year, y=Age, label=lab), size=4, alpha=1, label.r=unit(0, "lines"), label.size=NA,
-          data=data.frame(Year=1976.5, Age=5.7, lab=df.mods$Model, NAA_cor=df.mods$NAA_cor, NAA_sigma=df.mods$NAA_sigma)) +
+          data=data.frame(Year=1978, Age=5.7, lab=df.mods$Model, NAA_cor=df.mods$NAA_cor, NAA_sigma=df.mods$NAA_sigma)) +
       scale_x_continuous(expand=c(0,0)) +
       scale_y_continuous(expand=c(0,0)) +
       theme_bw() +
       theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-      facet_grid(rows=vars(NAA_cor), cols=vars(NAA_sigma), drop=F) +
+      facet_grid(rows=vars(NAA_cor), cols=vars(NAA_sigma), drop=F, labeller = label_parsed) +
       scale_fill_gradient2(name = "NAA devs", low = scales::muted("blue"), mid = "white", high = scales::muted("red")))
 ```
 
 #### Fig 2. M devs (in models where only M is random effect)
 
-```{r}
+```{r, fig.height = 6, fig.width = 7}
 df.mods <- data.frame(M_re = rep(c('none','iid','ar1_a','ar1_y','2dar1'),2),
                       est_M = rep(c(FALSE,TRUE),each=5), stringsAsFactors=FALSE)
 n.mods <- dim(df.mods)[1]
@@ -321,8 +530,10 @@ df.mods <- df.mods %>% select(Model, everything()) # moves Model to first col
 mod.list <- here("results","dat_2019","bias_correct_oe","NAA_M",paste0(df.mods$Model,".rds"))
 mods <- lapply(mod.list, readRDS)
 
-df.mods$M_re <- factor(df.mods$M_re, levels=c('none','iid','ar1_a','ar1_y','2dar1'), labels=c("None","IID","AR1_a","AR1_y","2D AR1"))
-df.mods$est_M <- factor(df.mods$est_M, levels=c(FALSE,TRUE), labels=c("mean M fixed","mean M estimated"))
+df.mods$Model <- paste0("M-",1:n.mods)
+df.mods$M_re <- factor(df.mods$M_re, levels=c('none','iid','ar1_a','ar1_y','2dar1'), labels=c("None","IID","AR1[age]","AR1[year]","'2D'~AR1"))
+# df.mods$est_M <- factor(df.mods$est_M, levels=c(FALSE,TRUE), labels=c("mean M fixed","mean M estimated"))
+df.mods$est_M <- factor(df.mods$est_M, levels=c(FALSE,TRUE), labels=c("Fixed~mu[M]","Estimated~mu[M]"))
 n_ages <- mods[[1]]$env$data$n_ages
 df.NAA <- data.frame(matrix(NA, nrow=0, ncol=n_ages+3))
 colnames(df.NAA) <- c(paste0("Age_",1:n_ages),"Year","M_re","est_M")
@@ -344,11 +555,11 @@ df.plot <- df.NAA %>% tidyr::pivot_longer(-c(Year,M_re,est_M),
 print(ggplot(df.plot, ggplot2::aes(x=Year, y=Age)) +
       geom_tile(aes(fill=M_devs)) +
       geom_label(aes(x=Year, y=Age, label=lab), size=4, alpha=1, label.r=unit(0, "lines"), label.size=NA,
-          data=data.frame(Year=1975.5, Age=5.7, lab=df.mods$Model, M_re=df.mods$M_re, est_M=df.mods$est_M)) +
+          data=data.frame(Year=1976, Age=5.7, lab=df.mods$Model, M_re=df.mods$M_re, est_M=df.mods$est_M)) +
       scale_x_continuous(expand=c(0,0)) +
       scale_y_continuous(expand=c(0,0)) +
       theme_bw() +
-      facet_grid(rows=vars(M_re), cols=vars(est_M), drop=F) +
+      facet_grid(rows=vars(M_re), cols=vars(est_M), drop=F, labeller = label_parsed) +
       scale_fill_gradient2(name = "M devs", low = scales::muted("blue"), mid = "white", high = scales::muted("red")))
 ```
 
@@ -432,17 +643,18 @@ df2 <- diff %>% pivot_longer(-NAA_re, names_to = "var", values_to = "val")
 df2$M_re <- c("iid / 2dar1")
 
 df <- rbind(df1,df2)
-df$var <- factor(df$var, levels=c("rho_R","rho_SSB","rho_Fbar"))
-df$NAA_re <- factor(df$NAA_re, levels=c("iid","ar1_a","ar1_y","2dar1"), labels=c("IID","AR1_a","AR1_y","2D AR1"))
-df$M_re <- factor(df$M_re, levels=c("none","iid / 2dar1"))
+df$var <- factor(df$var, levels=c("rho_R","rho_SSB","rho_Fbar"), labels=c("`Mohn's`~rho[R]","`Mohn's`~rho[SSB]","`Mohn's`~rho[F]"))
+df$NAA_re <- factor(df$NAA_re, levels=c("iid","ar1_a","ar1_y","2dar1"), labels=c("IID","AR1[age]","AR1[year]","'2D'~AR1"))
+df$M_re <- factor(df$M_re, levels=c("none","iid / 2dar1"), labels=c("None","IID / 2D AR1"))
 
 ggplot(df, aes(x=NAA_re, y=val, fill=M_re)) +
   geom_point(pch = 21) +
   geom_hline(yintercept=0, linetype="dashed") +
-  facet_wrap(vars(var), nrow=1, strip.position = "top") +
-  ylab("Reduction in abs(rho)") +
+  facet_wrap(vars(var), nrow=1, strip.position = "top", labeller = label_parsed) +
+  ylab(expression(Reduction~"in"~"|"*"Mohn's"~rho*"|")) +
   xlab("NAA random effect structure") +
-  scale_fill_grey() +
+  scale_x_discrete(labels = function(l) parse(text=l)) +
+  scale_fill_grey(name="M random effects") +
   theme_bw() +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
@@ -452,7 +664,7 @@ ggplot(df, aes(x=NAA_re, y=val, fill=M_re)) +
 
 Only showing NAA + M + CPI model with lowest rho (< 0.1 for all three), even though it has higher AIC. Could show all 3 in a multipanel.
 
-```{r}
+```{r, fig.height = 7, fig.width = 7}
 mod <- readRDS(here("results","dat_2019","bias_correct_oe","NAA_M_CPI","m22.rds"))
 n_ages <- mod$env$data$n_ages
 df <- data.frame(matrix(NA, nrow=0, ncol=n_ages+2))
@@ -552,6 +764,9 @@ dfrho$Year = as.integer(years[nyears.cut]+2)
 dfrho$yval = 1.6
 dfrho$val = paste0("rho == ",sprintf("%.2f",round(dfrho$val,2)))
 
+df$Model <- factor(df$Model, levels=c("base","NAA", "M", "NAA + M", "NAA + M + CPI"), labels=c("base","NAA", "M", "NAA + M", "NAA + M + CPI"))
+dfrho$Model <- factor(dfrho$Model, levels=c("base","NAA", "M", "NAA + M", "NAA + M + CPI"), labels=c("base","NAA", "M", "NAA + M", "NAA + M + CPI"))
+
 df$var <- factor(df$var, levels=c("Recruitment","SSB","F"))
 dfpoints <- subset(df, peel == 1:7 & Year == 2018:2012)
 df$peel <- as.character(df$peel)
@@ -622,6 +837,8 @@ for(i in 1:length(mods)){
   df <- rbind(df, df.tmp)
 }
 
+df$Model <- factor(df$Model, levels=c("base","NAA", "M", "NAA + M", "NAA + M + CPI"), labels=c("base","NAA", "M", "NAA + M", "NAA + M + CPI"))
+
 df[,3:5] <- df[,3:5]/10000
 df$Year <- as.integer(df$Year)
 df.plot <- subset(df, Year > 1993)
@@ -640,6 +857,27 @@ ggplot(dat, aes(x=Year, y=val, color=Model, group=Model)) +
   scale_fill_jco() +
   theme_bw() +
   theme(strip.background = element_blank(), strip.placement = "outside")
+
+# NAA relative to base model
+dat.rel <- dat %>% group_by(Year, Age) %>%
+  mutate(val.rel = val/val[Model=='base']) %>% as.data.frame
+  
+ggplot(dat.rel, aes(x=Year, y=val.rel, color=Model, group=Model)) +
+  # geom_ribbon(aes(ymin=lo, ymax=hi, fill=Model), color=NA, alpha=.15) +
+  geom_line(size=.8) +
+  geom_vline(xintercept = tail(mods[[1]]$years,1), linetype=2, size=.4) +
+  facet_wrap(vars(Age), scales="free_y", ncol=3, strip.position = "top") +
+  # ylab(expression(Numbers~at~age~(x~10^5))) +
+  ylab("Relative numbers at age (to base model)") +
+  geom_blank(aes(y = y_min)) +
+  scale_y_continuous(expand=c(0.02,0.02)) +
+  coord_cartesian(xlim=c(1995,2021)) +
+  scale_color_jco() +
+  scale_fill_jco() +
+  theme_bw() +
+  theme(strip.background = element_blank(), strip.placement = "outside")
+
+
 ```
 
 #### Fig 7. SSB and F (base, NAA, M, NAA + M, NAA + M + CPI)
@@ -687,10 +925,14 @@ for(i in 1:length(mods)){
   full.f = exp(log.full.f)
   df <- rbind(df, data.frame(Year=years, var="F", val=full.f, lo=exp(log.f.ci[,1]), hi=exp(log.f.ci[,2]), Model=mod.labs[i]))
 }
-
+df$Model <- factor(df$Model, levels=c("base","NAA", "M", "NAA + M", "NAA + M + CPI"), labels=c("base","NAA", "M", "NAA + M", "NAA + M + CPI"))
 df$Year <- as.integer(df$Year)
 dat <- data.table(df)
 dat[,y_min := 0, by = var]
+
+# exclude years before 1993 in dat bc ggplot doesn't recalculate y-axis limits
+dat <- subset(dat, Year > 1992)
+
 ggplot(dat, aes(x=Year, y=val, color=Model, group=Model)) +
   geom_ribbon(aes(ymin=lo, ymax=hi, fill=Model), color=NA, alpha=.15) +
   geom_line(size=.8) +
@@ -699,14 +941,12 @@ ggplot(dat, aes(x=Year, y=val, color=Model, group=Model)) +
   ylab(NULL) +
   geom_blank(aes(y = y_min)) +
   scale_y_continuous(expand=c(0.01,0.01)) +
+  coord_cartesian(xlim=c(1995,2021)) +
   scale_color_jco() +
   scale_fill_jco() +
   theme_bw() +
   theme(strip.background = element_blank(), strip.placement = "outside")
 ```
 
-#### Fig 8. Reduction in -logL and $\rho$ from using bias correction.
-
-Could do.
 
 
