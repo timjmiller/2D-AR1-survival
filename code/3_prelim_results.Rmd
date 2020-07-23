@@ -7,7 +7,7 @@ output:
 ---
 
 ```{r setup, include=FALSE, cache = FALSE}
-knitr::opts_chunk$set(echo = FALSE, dpi=300, dev = c('pdf', 'png'), fig.align = 'center')
+knitr::opts_chunk$set(echo = FALSE, dpi=300, dev = 'png', fig.align = 'center')
 library(here)
 library(wham)
 library(tidyverse)
@@ -705,7 +705,7 @@ print(ggplot(df.plot, ggplot2::aes(x=Year, y=Age)) +
 mod.list <- c(here("results","dat_2019","bias_correct_oe","NAA","m1.rds"),
               here("results","dat_2019","bias_correct_oe","NAA","m6.rds"),
               here("results","dat_2019","bias_correct_oe","M","m5.rds"),
-              here("results","dat_2019","bias_correct_oe","NAA_M","m2.rds"),
+              here("results","dat_2019","bias_correct_oe","NAA_M_iid","m5.rds"),
               here("results","dat_2019","bias_correct_oe","NAA_M_CPI","m22.rds"))
 mods <- lapply(mod.list, readRDS)
 mod.labs <- c("base","NAA", "M", "NAA + M", "NAA + M + CPI")
