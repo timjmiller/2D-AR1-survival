@@ -12,7 +12,7 @@
 # Update only models 14, 22, 24 (only used in paper)
 # -----------------------------------------
 
-# source("/home/bstock/Documents/ms/2D-AR1-survival/code/bias_correct_oe/1g_fit_models_NAA_M_CPI.R")
+# source("/home/bstock/Documents/ms/2D-AR1-survival/code/bias_correct_oe/1g_fit_models_NAA_M_CPI_update.R")
 
 # remotes::install_github("noaa-edab/ecodata",build_vignettes=TRUE)
 # remotes::install_github("timjmiller/wham", ref="om_mode", dependencies=TRUE)
@@ -46,7 +46,8 @@ df.mods
 
 # run models
 # for(m in 1:n.mods){
-for(m in c(14,22,24)){
+for(m in c(14,18,22,24)){
+# for(m in 18){
   if(df.mods[m,"est_M"]){
     M_list <- list(model="constant", est_ages=1, re=df.mods$M_re[m], initial_means=0.25)
   } else {
