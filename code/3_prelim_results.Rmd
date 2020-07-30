@@ -491,8 +491,8 @@ n_ages <- mods[[1]]$env$data$n_ages
 df.NAA <- data.frame(matrix(NA, nrow=0, ncol=n_ages+3))
 colnames(df.NAA) <- c(paste0("Age_",1:n_ages),"Year","NAA_cor","NAA_sigma")
 for(i in 1:length(mods)){
-  tmp = as.data.frame(mods[[i]]$rep$NAA_devs)[1:(mods[[1]]$env$data$n_years_model-1),]
-  tmp$Year <- mods[[i]]$years[-1]
+  tmp = as.data.frame(mods[[i]]$rep$NAA_devs)[1:(length(mods[[i]]$years_full)-1),]
+  tmp$Year <- mods[[i]]$years_full[-1]
   colnames(tmp) <- c(paste0("Age_",1:n_ages),"Year")
   tmp$NAA_cor = df.mods$NAA_cor[i]
   tmp$NAA_sigma = df.mods$NAA_sigma[i]
@@ -504,11 +504,13 @@ df.plot <- df.NAA %>% tidyr::pivot_longer(-c(Year,NAA_cor,NAA_sigma),
           names_transform = list(Age = as.integer),
           values_to = "NAA_re")
 df.plot$NAA_re[df.plot$NAA_sigma == "Random~effects:~Recruitment" & df.plot$Age > 1] = 0
+df.mods$xint = tail(mods[[1]]$years,1)
 
 print(ggplot(df.plot, ggplot2::aes(x=Year, y=Age)) +
       geom_tile(aes(fill=NAA_re)) +
       geom_label(aes(x=Year, y=Age, label=lab), size=4, alpha=1, label.r=unit(0, "lines"), label.size=NA,
           data=data.frame(Year=1978, Age=5.7, lab=df.mods$Model, NAA_cor=df.mods$NAA_cor, NAA_sigma=df.mods$NAA_sigma)) +
+      geom_vline(data=df.mods, mapping=aes(xintercept = xint), linetype=2, size=.4) +
       scale_x_continuous(expand=c(0,0)) +
       scale_y_continuous(expand=c(0,0)) +
       theme_bw() +
@@ -527,7 +529,7 @@ df.mods$Model <- paste0("m",1:n.mods)
 df.mods <- df.mods %>% select(Model, everything()) # moves Model to first col
 
 # load models
-mod.list <- here("results","dat_2019","bias_correct_oe","NAA_M",paste0(df.mods$Model,".rds"))
+mod.list <- here("results","dat_2019","bias_correct_oe","M",paste0(df.mods$Model,".rds"))
 mods <- lapply(mod.list, readRDS)
 
 df.mods$Model <- paste0("M-",1:n.mods)
@@ -538,11 +540,16 @@ n_ages <- mods[[1]]$env$data$n_ages
 df.NAA <- data.frame(matrix(NA, nrow=0, ncol=n_ages+3))
 colnames(df.NAA) <- c(paste0("Age_",1:n_ages),"Year","M_re","est_M")
 for(i in 1:length(mods)){
-  tmp = as.data.frame(mods[[i]]$rep$M_re)[1:mods[[1]]$env$data$n_years_model,]
-  tmp$Year <- mods[[i]]$years
+  tmp = as.data.frame(mods[[i]]$rep$M_re)[1:length(mods[[i]]$years_full),]
+  tmp$Year <- mods[[i]]$years_full
   colnames(tmp) <- c(paste0("Age_",1:n_ages),"Year")
   tmp$M_re = df.mods$M_re[i]
   tmp$est_M = df.mods$est_M[i]
+  if(i %in% c(1,3,6,8)){
+    for(y in (mods[[i]]$env$data$n_years_model+1):length(mods[[i]]$years_full)){
+      tmp[y,1:6] <- tmp[length(mods[[i]]$years), 1:6]
+    }
+  }
   df.NAA <- rbind(df.NAA, tmp)
 }
 df.plot <- df.NAA %>% tidyr::pivot_longer(-c(Year,M_re,est_M),
@@ -554,6 +561,7 @@ df.plot <- df.NAA %>% tidyr::pivot_longer(-c(Year,M_re,est_M),
 
 print(ggplot(df.plot, ggplot2::aes(x=Year, y=Age)) +
       geom_tile(aes(fill=M_devs)) +
+      geom_vline(xintercept = tail(mods[[1]]$years,1), linetype=2, size=.4) +
       geom_label(aes(x=Year, y=Age, label=lab), size=4, alpha=1, label.r=unit(0, "lines"), label.size=NA,
           data=data.frame(Year=1976, Age=5.7, lab=df.mods$Model, M_re=df.mods$M_re, est_M=df.mods$est_M)) +
       scale_x_continuous(expand=c(0,0)) +
@@ -669,15 +677,15 @@ mod <- readRDS(here("results","dat_2019","bias_correct_oe","NAA_M_CPI","m22.rds"
 n_ages <- mod$env$data$n_ages
 df <- data.frame(matrix(NA, nrow=0, ncol=n_ages+2))
 colnames(df) <- c(paste0("Age_",1:n_ages),"Year","type")
-tmp = as.data.frame(mod$rep$M_re)[1:mod$env$data$n_years_model,]
-tmp$Year <- mod$years
+tmp = as.data.frame(mod$rep$M_re)[1:length(mod$years_full),]
+tmp$Year <- mod$years_full
 colnames(tmp) <- c(paste0("Age_",1:n_ages),"Year")
 tmp$type = "log(M) deviations"
 df <- rbind(df, tmp)
 
 # add NAA devs
-tmp = as.data.frame(mod$rep$NAA_devs)[1:(mod$env$data$n_years_model-1),]
-tmp$Year <- mod$years[-1]
+tmp = as.data.frame(mod$rep$NAA_devs)[1:(length(mod$years_full)-1),]
+tmp$Year <- mod$years_full[-1]
 colnames(tmp) <- c(paste0("Age_",1:n_ages),"Year")
 tmp$type = "log(NAA) deviations"
 df <- rbind(df, tmp)
@@ -690,6 +698,7 @@ df.plot <- df %>% tidyr::pivot_longer(-c(Year,type),
 
 print(ggplot(df.plot, ggplot2::aes(x=Year, y=Age)) +
       geom_tile(aes(fill=devs)) +
+      geom_vline(xintercept = tail(mod$years,1), linetype=2, size=.4) +
       scale_x_continuous(expand=c(0,0)) +
       scale_y_continuous(expand=c(0,0)) +
       theme_bw() +
