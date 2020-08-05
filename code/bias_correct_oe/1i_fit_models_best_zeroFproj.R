@@ -14,7 +14,7 @@
 
 # source("/home/bstock/Documents/ms/2D-AR1-survival/code/bias_correct_oe/1i_fit_models_best_zeroFproj.R")
 
-# remotes::install_github("timjmiller/wham", ref="om_mode", dependencies=TRUE)
+# remotes::install_github("timjmiller/wham", dependencies=TRUE)
 library(here)
 library(wham) # https://timjmiller.github.io/wham
 library(tidyverse)
@@ -94,17 +94,52 @@ for(m in 1:n.mods){
   #  - WAA, maturity fixed at terminal year, 2018 (default)  
   #  - F = 0
   #  - continue M re process (default)
-  mod <- fit_wham(input, do.retro=T, do.osa=F, do.proj=T, proj.opts=list(proj.F=rep(0,3), cont.Mre=TRUE))  
+  # popts <- list(n.yrs=3, use.last.F=FALSE, use.avg.F=FALSE, use.FXSPR=FALSE,
+  #                            proj.F=rep(0,3), proj.catch=NULL, avg.yrs=NULL,
+  #                            cont.ecov=TRUE, use.last.ecov=FALSE, avg.ecov.yrs=NULL, proj.ecov=NULL, cont.Mre=NULL)
+  # popts <- list(proj.F=rep(0,3), cont.Mre=TRUE)
+
+  # mod <- fit_wham(input, do.retro=T, do.osa=F, do.proj=T, proj.opts=popts)
+  # if(df.mods$M_re[m] != 'none') popts$cont.Mre=TRUE  
+
+  mod <- fit_wham(input, do.retro=T, do.osa=F, do.proj=F)
+  # mod <- fit_wham(input, do.retro=T, do.osa=F, do.proj=T, proj.opts=list(proj.F=rep(0,3), cont.Mre=TRUE))  
 
   # Save model
   if(exists("err")) rm("err") # need to clean this up
   saveRDS(mod, file=file.path(thedir, paste0(df.mods$Model[m],".rds")))
 }
 
-# didn't do projections... add after fit
-for(m in c(1:3,5:8)){
+# add projections after fit
+for(m in 1:n.mods){
   tmp <- readRDS(file.path(thedir, paste0("m",m,".rds")))
-  mod <- project_wham(tmp, proj.opts=list(n.yrs=3, proj.F=rep(0,3), cont.ecov=TRUE))
-  saveRDS(mod, file=file.path(thedir, paste0("m",m,".rds")))
+
+  # check for convergence (pdHess)
+  # m4 (M-2, IID M devs) does not converge after adding CPI with no link to recruitment
+  if(tmp$na_sdrep==FALSE & !is.na(tmp$na_sdrep)) ok_sdrep = TRUE else ok_sdrep = FALSE
+  if(ok_sdrep){
+    # popts <- list(proj.F=rep(0.001,3), cont.Mre=TRUE) # works for all
+    popts <- list(proj.F=rep(0,3), cont.Mre=TRUE) # works for m1-m3, fails for m5-m8
+    if(df.mods$M_re[m] == 'none') popts$cont.Mre=FALSE
+
+    mod <- project_wham(tmp, proj.opts=popts)
+    saveRDS(mod, file=file.path(thedir, paste0("m",m,"_proj.rds")))    
+  }
 }
 
+# Optimizing tape... Done
+# iter: 1  Error in if (m < 0) { : missing value where TRUE/FALSE needed
+# iter: 1  Error in if (m < 0) { : missing value where TRUE/FALSE needed
+# In addition: Warning message:
+# In stats::nlminb(model$par, model$fn, model$gr, control = list(iter.max = 1000,  :
+#   NA/NaN function evaluation
+# outer mgc:  NaN 
+# Error in stats::nlminb(model$par, model$fn, model$gr, control = list(iter.max = 1000,  : 
+#   gradient function must return a numeric vector of length 84
+
+
+# mod.list <- file.path(thedir,paste0("m",c(1:3,5:8),"_proj.rds"))
+# mods <- lapply(mod.list, readRDS)
+# ssb <- lapply(mods, function(x) tail(x$rep$SSB,6))
+# ssb.msy <- lapply(mods, function(x) tail(exp(x$rep$log_SSB_MSY),6))
+# rel.ssb <- lapply(mods, function(x) tail(x$rep$SSB,6)/tail(exp(x$rep$log_SSB_MSY),6))
