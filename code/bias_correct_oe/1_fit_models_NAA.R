@@ -55,6 +55,10 @@ for(m in 1:n.mods){
   # 5/29/20, bias correct CAA and IAA
   input$data$bias_correct_oe = 1
 
+  # library(Matrix)
+  # mod = fit_wham(input, do.fit=F)
+  # image(mod$env$spHess(random=TRUE))
+
   # Fit model with projections:
   #  - 3 years
   #  - F = 0
