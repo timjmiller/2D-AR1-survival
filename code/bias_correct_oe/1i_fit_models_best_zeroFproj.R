@@ -14,6 +14,7 @@
 
 # source("/home/bstock/Documents/ms/2D-AR1-survival/code/bias_correct_oe/1i_fit_models_best_zeroFproj.R")
 
+# devtools::load_all("/home/bstock/Documents/wham")
 # remotes::install_github("timjmiller/wham", dependencies=TRUE)
 library(here)
 library(wham) # https://timjmiller.github.io/wham
@@ -126,6 +127,17 @@ for(m in 1:n.mods){
     saveRDS(mod, file=file.path(thedir, paste0("m",m,"_proj.rds")))    
   }
 }
+
+# troubleshoot Mre in projections
+m = 5
+tmp <- readRDS(file.path(thedir, paste0("m",m,".rds")))
+# popts <- list(proj.F=rep(0,3), cont.Mre=TRUE) 
+popts <- list(proj.F=rep(0,3), cont.Mre=FALSE) 
+mod <- project_wham(tmp, proj.opts=popts)
+
+input2 <- wham:::prepare_projection(tmp, proj.opts=popts)
+mod <- fit_wham(input2, n.newton=3, do.fit=F, MakeADFun.silent = F)
+mod <- fit_wham(input2, n.newton=3, do.sdrep=T, do.retro=F, do.osa=F, do.check=F, do.proj=F, MakeADFun.silent = F)
 
 # Optimizing tape... Done
 # iter: 1  Error in if (m < 0) { : missing value where TRUE/FALSE needed
