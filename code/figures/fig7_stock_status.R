@@ -15,9 +15,10 @@ mod.list <- c(here("results","dat_2019","bias_correct_oepe_rev","NAA","Base.rds"
               here("results","dat_2019","bias_correct_oepe_rev","NAA","NAA-2.rds"),
               here("results","dat_2019","bias_correct_oepe_rev","NAA","NAA-5.rds"),
               here("results","dat_2019","bias_correct_oepe_rev","M","M-4.rds"),
-              here("results","dat_2019","bias_correct_oepe_rev","NAA_M","NAA-M-2.rds"))
+              here("results","dat_2019","bias_correct_oepe_rev","NAA_M","NAA-M-2.rds"),
+              here("results","dat_2019","bias_correct_oepe_rev","NAA_M","NAA-M-3.rds"))
 mods <- lapply(mod.list, readRDS)
-mod.labs <- c("Base","NAA-2", "NAA-5", "M-4", "NAA-M-2")
+mod.labs <- c("Base","NAA-2", "NAA-5", "M-4", "NAA-M-2","NAA-M-3")
 
 years = mods[[1]]$years_full # include projections
 alpha = .05 # 95% CI

@@ -13,9 +13,10 @@ mod.list <- c(here("results","dat_2019","bias_correct_oepe_rev","NAA","Base.rds"
               here("results","dat_2019","bias_correct_oepe_rev","NAA","NAA-2.rds"),
               here("results","dat_2019","bias_correct_oepe_rev","NAA","NAA-5.rds"),
               here("results","dat_2019","bias_correct_oepe_rev","M","M-4.rds"),
-              here("results","dat_2019","bias_correct_oepe_rev","NAA_M","NAA-M-2.rds"))
+              here("results","dat_2019","bias_correct_oepe_rev","NAA_M","NAA-M-2.rds"),
+              here("results","dat_2019","bias_correct_oepe_rev","NAA_M","NAA-M-3.rds"))
 mods <- lapply(mod.list, readRDS)
-mod.labs <- c("Base","NAA-2","NAA-5", "M-4", "NAA-M-2")
+mod.labs <- c("Base","NAA-2", "NAA-5", "M-4", "NAA-M-2","NAA-M-3")
 years = mods[[1]]$years
 nyears <- length(years) # don't use projections
 npeels = length(mods[[1]]$peels)
@@ -67,8 +68,8 @@ for(i in 1:length(mods)){
   dfrho <- rbind(dfrho, data.frame(val=wham::mohns_rho(mods[[i]])[1:3], var=c("SSB","F","Recruitment"), Model=mod.labs[i]))
 }
 
-dfrho$Year = as.integer(years[nyears.cut]+2)
-dfrho$yval = 1.6
+dfrho$Year = as.integer(years[nyears.cut]+1)
+dfrho$yval = 1.75
 dfrho$val = paste0("rho == ",sprintf("'%.2f'",round(dfrho$val,2)))
 
 df$Model <- factor(df$Model, levels=mod.labs, labels=mod.labs)
@@ -85,11 +86,11 @@ dev.new(width=8, height=5)
 ggplot(df, aes(x=Year,y=val, color=peel, group=peel)) +
   geom_line() +
   geom_point(data=dfpoints, aes(x=Year,y=val, color=peel)) +
-  geom_label(data=dfrho, aes(x=Year, y=yval, label=val), inherit.aes=F, parse=T, hjust=0, label.r=unit(0, "lines"), label.size=NA) +
+  geom_label(data=dfrho, aes(x=Year, y=yval, label=val), inherit.aes=F, parse=T, hjust=0, label.r=unit(0, "lines"), label.size=NA, size=3.6) +
   ylab(bquote(paste("Mohn's ", rho))) +
   facet_grid(cols=vars(Model), rows=vars(var)) +
   coord_cartesian(ylim=c(-1,2)) +
   theme_bw() +
-  theme(legend.position = "none")
+  theme(legend.position = "none", axis.text = element_text(size=8))
 ggsave(here("plots","fig5_retros.pdf"), device='pdf', width=8, height=5, units="in", dpi = 300)
 dev.off()

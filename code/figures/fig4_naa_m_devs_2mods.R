@@ -38,6 +38,9 @@ df.plot <- df %>% tidyr::pivot_longer(-c(Year,type,mod),
           names_prefix = "Age_",
           names_transform = list(Age = as.integer),
           values_to = "devs")
+df.labs <- data.frame(label=LETTERS[1:4], mod=factor(c("NAA-M-2","NAA-M-2","NAA-M-3","NAA-M-3"), levels=c("NAA-M-2","NAA-M-3")), 
+                      type=factor(c("log(M) deviations","log(NAA) deviations","log(M) deviations","log(NAA) deviations"), levels=c("log(M) deviations","log(NAA) deviations")),
+                      Year=1976, Age=5.7)
 
 dev.new(width=7, height=4)
 ggplot(df.plot, ggplot2::aes(x=Year, y=Age)) +
@@ -47,6 +50,7 @@ ggplot(df.plot, ggplot2::aes(x=Year, y=Age)) +
       scale_y_continuous(expand=c(0,0)) +
       theme_bw() +
       facet_grid(rows=vars(type), cols=vars(mod)) +
+      geom_label(data=df.labs, aes(label=label), color='black', size=6, alpha=1, label.r=unit(0, "lines"), label.size=NA) +
       scale_fill_gradient2(name = "", low = scales::muted("blue"), mid = "white", high = scales::muted("red"))
 ggsave(here("plots","fig4_naa_m_devs_2mods.pdf"), device='pdf', width=7, height=4, units="in", dpi = 300)
 dev.off()
