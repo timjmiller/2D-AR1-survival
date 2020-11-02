@@ -16,7 +16,14 @@ df.mods <- df.mods %>% select(Model, lab, everything()) # moves Model to first c
 df.mods
 
 # load models
-mod.list <- here("results","dat_2019","bias_correct_oepe_rev","best",paste0(df.mods$Model,".rds"))
+# mod.list <- here("results","dat_2019","bias_correct_oepe_rev","best",paste0(df.mods$Model,".rds"))
+mod.list <- list("/home/bstock/Documents/ms/2D-AR1-survival/results/dat_2019/bias_correct_oepe_rev/NAA/Base.rds",
+	"/home/bstock/Documents/ms/2D-AR1-survival/results/dat_2019/bias_correct_oepe_rev/NAA/NAA-2.rds",
+	"/home/bstock/Documents/ms/2D-AR1-survival/results/dat_2019/bias_correct_oepe_rev/NAA/NAA-5.rds",
+	"/home/bstock/Documents/ms/2D-AR1-survival/results/dat_2019/bias_correct_oepe_rev/M/M-1.rds",
+	"/home/bstock/Documents/ms/2D-AR1-survival/results/dat_2019/bias_correct_oepe_rev/M/M-4.rds",
+	"/home/bstock/Documents/ms/2D-AR1-survival/results/dat_2019/bias_correct_oepe_rev/NAA_M/NAA-M-2.rds",
+	"/home/bstock/Documents/ms/2D-AR1-survival/results/dat_2019/bias_correct_oepe_rev/NAA_M/NAA-M-3.rds")
 mods <- lapply(mod.list, readRDS)
 
 # calc results table
