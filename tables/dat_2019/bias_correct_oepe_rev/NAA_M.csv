@@ -1,0 +1,5 @@
+"","Model","M_re","NAA_cor","conv","pdHess","runtime","NLL","dAIC","AIC","rho_R","rho_SSB","rho_Fbar"
+"1","NAA-M-1","iid","iid",TRUE,TRUE,1,-1047.749,30.2,-1937.5,0.2127,0.1212,-0.0548
+"2","NAA-M-2","2dar1","iid",TRUE,TRUE,1.06,-1046.981,35.7,-1932,-0.137,0.027,0.0425
+"3","NAA-M-3","iid","2dar1",TRUE,TRUE,1.28,-1064.853,0,-1967.7,0.4516,0.0532,0.01
+"4","NAA-M-4","2dar1","2dar1",FALSE,FALSE,1.3,-1063.045,NA,NA,0.28,0.0448,-0.0113

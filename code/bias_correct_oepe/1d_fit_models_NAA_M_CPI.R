@@ -84,8 +84,29 @@ for(m in 1:n.mods){
 
   # Save model
   if(exists("err")) rm("err") # need to clean this up
-  saveRDS(mod, file=here("results","dat_2019","bias_correct_oepe","NAA_M_CPI",paste0(df.mods$Model[m],".rds")))
+  saveRDS(mod, file=here("results","dat_2019","bias_correct_oepe_rev","NAA_M_CPI",paste0(df.mods$Model[m],".rds")))
+  # saveRDS(mod, file=here("results","dat_2019","bias_correct_oepe","NAA_M_CPI",paste0(df.mods$Model[m],".rds")))
 }
+
+# collect fit models into a list
+mod.list <- here("results","dat_2019","bias_correct_oepe_rev","NAA_M_CPI",paste0(df.mods$Model,".rds"))
+mods <- lapply(mod.list, readRDS)
+
+opt_conv = 1-sapply(mods, function(x) x$opt$convergence)
+ok_sdrep = sapply(mods, function(x) if(x$na_sdrep==FALSE & !is.na(x$na_sdrep)) 1 else 0)
+df.mods$conv <- as.logical(opt_conv)
+df.mods$pdHess <- as.logical(ok_sdrep)
+df.mods$runtime <- sapply(mods, function(x) x$runtime)
+df.mods$NLL <- sapply(mods, function(x) round(x$opt$objective,3))
+df.aic <- as.data.frame(compare_wham_models(mods, sort=FALSE, calc.rho=F)$tab)
+df.aic$AIC[df.mods$pdHess==FALSE] <- NA
+minAIC <- min(df.aic$AIC, na.rm=T)
+df.aic$dAIC <- round(df.aic$AIC - minAIC,1)
+df.mods <- cbind(df.mods, df.aic)
+rownames(df.mods) <- NULL
+
+# look at results table
+df.mods
 
 # if(exists("err")) rm("err") # need to clean this up
 # mod$parList$logit_selpars

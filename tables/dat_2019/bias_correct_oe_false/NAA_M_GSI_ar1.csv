@@ -1,9 +1,0 @@
-"","Model","NAA_re","M_re","est_M","GSI_how","conv","pdHess","runtime","NLL","dAIC","AIC","rho_R","rho_SSB","rho_Fbar"
-"1","m1","2dar1","iid",FALSE,0,FALSE,FALSE,1.27,-1011.379,NA,NA,0.0874,0.021,-2e-04
-"2","m2","2dar1","iid",FALSE,2,FALSE,FALSE,3.39,-1006.4,NA,NA,0.2101,0.2135,-0.163
-"3","m3","2dar1","iid",TRUE,0,FALSE,FALSE,2.78,NA,NA,NA,0.0675,Inf,-1
-"4","m4","2dar1","iid",TRUE,2,FALSE,FALSE,0.56,-1019.746,NA,NA,0.0471,0.0226,1e-04
-"5","m5","iid","2dar1",FALSE,0,TRUE,TRUE,1.53,-996.413,33.5,-1820.8,-0.2312,0.0315,0.0464
-"6","m6","iid","2dar1",FALSE,2,TRUE,TRUE,1.63,-1009.414,9.5,-1844.8,-0.1379,0.012,0.0727
-"7","m7","iid","2dar1",TRUE,0,TRUE,TRUE,1.55,-1002.418,23.5,-1830.8,-0.5241,-0.2872,0.5363
-"8","m8","iid","2dar1",TRUE,2,TRUE,TRUE,1.66,-1015.125,0,-1854.3,-0.5085,-0.2842,0.5384

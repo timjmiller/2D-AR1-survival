@@ -1,21 +1,22 @@
-# Brian Stock
-# May 18, 2020
-# 2D AR1 survival devs (Haikun's paper)
 # Model results table - which converged?
 
-# source("/home/bstock/Documents/ms/2D-AR1-survival/code/bias_correct_oepe/2c_results_M.R")
+# source("/home/bstock/Documents/ms/2D-AR1-survival/code/bias_correct_oepe/2e_results_best.R")
 
 library(here)
 library(wham) # https://timjmiller.github.io/wham
 library(tidyverse)
 
-df.mods <- data.frame(M_re = c('none','iid','ar1_a','ar1_y','2dar1'), stringsAsFactors=FALSE)
+df.mods <- data.frame(NAA_cor = c('iid','iid','2dar1','iid','iid','iid','2dar1'),
+                      NAA_sigma = c('rec','rec+1','rec+1','rec','rec','rec+1','rec+1'),
+                      M_re = c('none','none','none','iid','2dar1','2dar1','iid'), stringsAsFactors=FALSE)
 n.mods <- dim(df.mods)[1]
-df.mods$Model <- c("Base",paste0("M-",1:(n.mods-1)))
-df.mods <- df.mods %>% select(Model, everything()) # moves Model to first col
+df.mods$Model <- paste0("m",1:n.mods)
+df.mods$lab <- c("Base","NAA-2","NAA-5","M-1","M-4","NAA-M-2","NAA-M-3")
+df.mods <- df.mods %>% select(Model, lab, everything()) # moves Model to first col
+df.mods
 
 # load models
-mod.list <- here("results","dat_2019","bias_correct_oepe_rev","M",paste0(df.mods$Model,".rds"))
+mod.list <- here("results","dat_2019","bias_correct_oepe_rev","best",paste0(df.mods$Model,".rds"))
 mods <- lapply(mod.list, readRDS)
 
 # calc results table
@@ -32,4 +33,4 @@ df.aic$dAIC <- round(df.aic$AIC - minAIC,1)
 df.mods <- cbind(df.mods, df.aic)
 rownames(df.mods) <- NULL
 
-write.csv(df.mods, file=here("tables","dat_2019","bias_correct_oepe_rev","M.csv"))
+write.csv(df.mods, file=here("tables","dat_2019","bias_correct_oepe_rev","best.csv"))

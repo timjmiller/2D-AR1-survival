@@ -12,7 +12,7 @@
 #  6 selectivity blocks for fleet
 #  change from age-specific to logistic sel
 
-# source("/home/bstock/Documents/ms/2D-AR1-survival/code/bias_correct_oe/1i_fit_models_best_zeroFproj.R")
+# source("/home/bstock/Documents/ms/2D-AR1-survival/code/bias_correct_oepe/1e_fit_models_best.R")
 
 # devtools::load_all("/home/bstock/Documents/wham")
 # remotes::install_github("timjmiller/wham", dependencies=TRUE)
@@ -20,7 +20,7 @@ library(here)
 library(wham) # https://timjmiller.github.io/wham
 library(tidyverse)
 
-thedir = here("results","dat_2019","bias_correct_oe","best_zeroFproj")
+thedir = here("results","dat_2019","bias_correct_oepe_rev","best")
 dir.create(thedir, showWarnings=FALSE)
 
 # assessment data
@@ -37,10 +37,11 @@ cpi$use[is.nan(cpi$CPI)] = 0 # don't use 2017 (NaN, fall survey missing)
 df.mods <- data.frame(NAA_cor = c('iid','iid','2dar1','iid','iid','iid','2dar1','iid'),
                       NAA_sigma = c('rec','rec+1','rec+1','rec','rec','rec+1','rec+1','rec+1'),
                       M_re = c('none','none','none','iid','2dar1','2dar1','iid','2dar1'),
-                      CPI_how = c(rep(0,7),2), stringsAsFactors=FALSE)
+                      CPI_how = c(rep(0,7),2),
+                      recruit_model = c(2,2,2,2,2,2,2,3), stringsAsFactors=FALSE)
 n.mods <- dim(df.mods)[1]
 df.mods$Model <- paste0("m",1:n.mods)
-df.mods$lab <- c("NAA-1","NAA-3","NAA-6","M-2","M-5","NAA-M-2","NAA-M-5","NAA-M-CPI-2")
+df.mods$lab <- c("Base","NAA-2","NAA-5","M-1","M-4","NAA-M-2","NAA-M-3","NAA-M-CPI-2")
 df.mods <- df.mods %>% select(Model, lab, everything()) # moves Model to first col
 df.mods
 
@@ -59,7 +60,7 @@ for(m in 1:n.mods){
     how = df.mods$CPI_how[m], # 0 = no effect (but still fit Ecov to compare AIC), 2 = limiting
     link_model = "linear")  
 
-  input <- prepare_wham_input(asap3, recruit_model = 3, # Bev Holt recruitment
+  input <- prepare_wham_input(asap3, recruit_model = df.mods$recruit_model[m],
                               model_name = df.mods$lab[m],                         
                               NAA_re = list(cor=df.mods$NAA_cor[m], sigma=df.mods$NAA_sigma[m]),
                               M = list(re=df.mods$M_re[m]),
@@ -80,15 +81,7 @@ for(m in 1:n.mods){
 
   # bias correct predicted CAA and IAA
   input$data$bias_correct_oe = 1
-
-  # # start M-2 at optimal pars (convergence issues)
-  # tmpmod <- fit_wham(input, do.fit=FALSE)
-  # m2 = readRDS("/home/bstock/Documents/ms/2D-AR1-survival/results/dat_2019/bias_correct_oe/M/m2.rds")
-  # tmppar <- tmpmod$env$parList(par=m2$env$last.par.best)
-  # m5 = readRDS("/home/bstock/Documents/ms/2D-AR1-survival/results/dat_2019/bias_correct_oe/best_zeroFproj/m5.rds")
-  # tmppar$Ecov_process_pars = m5$rep$Ecov_process_pars
-  # tmppar$Ecov_re = m5$rep$Ecov_re
-  # input$par <- tmppar
+  input$data$bias_correct_pe = 1
 
   # Fit model with projections:
   #  - 3 years, 2019-2021 (default)
@@ -113,14 +106,14 @@ for(m in 1:n.mods){
 
 # add projections after fit
 for(m in 1:n.mods){
-  tmp <- readRDS(file.path(thedir, paste0("m",m,".rds")))
+  tmp <- readRDS(file.path(thedir, paste0(df.mods$Model[m],".rds")))
 
   # check for convergence (pdHess)
   # m4 (M-2, IID M devs) does not converge after adding CPI with no link to recruitment
   if(tmp$na_sdrep==FALSE & !is.na(tmp$na_sdrep)) ok_sdrep = TRUE else ok_sdrep = FALSE
   if(ok_sdrep){
-    # popts <- list(proj.F=rep(0.001,3), cont.Mre=TRUE) # works for all
-    popts <- list(proj.F=rep(0,3), cont.Mre=TRUE) # works for m1-m3, fails for m5-m8
+    popts <- list(proj.F=rep(0.001,3), cont.Mre=TRUE) # works for all
+    # popts <- list(proj.F=rep(0,3), cont.Mre=TRUE) # works for m1-m3, fails for m5-m8
     if(df.mods$M_re[m] == 'none') popts$cont.Mre=FALSE
 
     mod <- project_wham(tmp, proj.opts=popts)
@@ -128,16 +121,16 @@ for(m in 1:n.mods){
   }
 }
 
-# troubleshoot Mre in projections
-m = 5
-tmp <- readRDS(file.path(thedir, paste0("m",m,".rds")))
-# popts <- list(proj.F=rep(0,3), cont.Mre=TRUE) 
-popts <- list(proj.F=rep(0,3), cont.Mre=FALSE) 
-mod <- project_wham(tmp, proj.opts=popts)
+# # troubleshoot Mre in projections
+# m = 5
+# tmp <- readRDS(file.path(thedir, paste0("m",m,".rds")))
+# # popts <- list(proj.F=rep(0,3), cont.Mre=TRUE) 
+# popts <- list(proj.F=rep(0,3), cont.Mre=FALSE) 
+# mod <- project_wham(tmp, proj.opts=popts)
 
-input2 <- wham:::prepare_projection(tmp, proj.opts=popts)
-mod <- fit_wham(input2, n.newton=3, do.fit=F, MakeADFun.silent = F)
-mod <- fit_wham(input2, n.newton=3, do.sdrep=T, do.retro=F, do.osa=F, do.check=F, do.proj=F, MakeADFun.silent = F)
+# input2 <- wham:::prepare_projection(tmp, proj.opts=popts)
+# mod <- fit_wham(input2, n.newton=3, do.fit=F, MakeADFun.silent = F)
+# mod <- fit_wham(input2, n.newton=3, do.sdrep=T, do.retro=F, do.osa=F, do.check=F, do.proj=F, MakeADFun.silent = F)
 
 # Optimizing tape... Done
 # iter: 1  Error in if (m < 0) { : missing value where TRUE/FALSE needed

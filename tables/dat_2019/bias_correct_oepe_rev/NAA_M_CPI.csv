@@ -1,0 +1,5 @@
+"","Model","M_re","NAA_cor","conv","pdHess","runtime","NLL","dAIC","AIC","rho_R","rho_SSB","rho_Fbar"
+"1","NAA-M-CPI-1","iid","iid",FALSE,FALSE,2.17,-984.862,NA,NA,NA,NA,NA
+"2","NAA-M-CPI-2","2dar1","iid",FALSE,TRUE,2.51,-996.643,0,-1821.3,0.0469,0.0617,-0.0321
+"3","NAA-M-CPI-3","iid","2dar1",FALSE,FALSE,7.75,237244.502,NA,NA,NA,NA,NA
+"4","NAA-M-CPI-4","2dar1","2dar1",FALSE,FALSE,1.11,-993.469,NA,NA,NA,NA,NA

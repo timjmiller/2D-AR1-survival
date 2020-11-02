@@ -1,43 +1,55 @@
-# Brian Stock
-# May 26, 2020
-# 2D AR1 survival devs (Haikun's paper)
-# Fit models
-
 # use 2019 assessment ASAP data file
 #  data til 2018
 #  6 selectivity blocks for fleet
 #  change from age-specific to logistic sel
 
-# source("/home/bstock/Documents/ms/2D-AR1-survival/code/bias_correct_oepe/1b_fit_models_M.R")
+# source("/home/bstock/Documents/ms/2D-AR1-survival/code/bias_correct_oepe/1g_fit_models_NAA_M_CPI_noBH.R")
 
 # remotes::install_github("noaa-edab/ecodata",build_vignettes=TRUE)
 # remotes::install_github("timjmiller/wham", ref="om_mode", dependencies=TRUE)
-# remotes::install_github("timjmiller/wham", dependencies=TRUE)
 library(here)
 library(wham) # https://timjmiller.github.io/wham
 library(tidyverse)
-# devtools::load_all("/home/bstock/Documents/wham")
 
 # set up wham
 # 2019 assessment from https://www.nefsc.noaa.gov/saw/sasi/sasi_report_options.php
 # https://fish.nefsc.noaa.gov/saw/reviews_report_options.php
 asap3 <- read_asap3_dat(here("data","SNEMAYT_2019_rmlarval.dat"))
-# asap3_rmblocks <- read_asap3_dat(here("data","SNEMAYT_2019_rmlarval_rmblocks.dat"))
 
-df.mods <- data.frame(M_re = c('none','iid','ar1_a','ar1_y','2dar1'), stringsAsFactors=FALSE)
+# created in 0_explore_data.R
+# cpi <- read.csv(here("data","CPI_v2.csv"), header=TRUE) 
+cpi <- read.csv(here("data","CPI_v3.csv"), header=TRUE) 
+colnames(cpi) <- c("Year","CPI","CPI_sigma")
+cpi$use <- 1
+cpi$use[is.nan(cpi$CPI)] = 0 # don't use 2017 (NaN, fall survey missing)
+
+df.mods <- data.frame(M_re = c('iid','2dar1','iid','2dar1'),
+                      NAA_cor = c('iid','iid','2dar1','2dar1'), stringsAsFactors=FALSE)
 n.mods <- dim(df.mods)[1]
-df.mods$Model <- c("Base",paste0("M-",1:(n.mods-1)))
+df.mods$Model <- paste0("NAA-M-CPI-",1:n.mods)
 df.mods <- df.mods %>% select(Model, everything()) # moves Model to first col
 df.mods
 
 # run models
-for(m in 2:n.mods){ # Base.rds from NAA runs
+for(m in 1:n.mods){
+  ecov <- list(
+    label = "CPI",
+    mean = as.matrix(cpi$CPI),
+    logsigma = matrix(log(cpi$CPI_sigma), ncol=1, nrow=dim(cpi)[1]),
+    year = cpi$Year,
+    use_obs = matrix(cpi$use, ncol=1, nrow=dim(cpi)[1]), # use all obs except 2017 (missing)
+    lag = 1, # CPI in year t affects Rec in year t + 1
+    process_model = "ar1",
+    where = "recruit", # CPI affects recruitment
+    how = 2, # 0 = no effect (but still fit Ecov to compare AIC), 2 = limiting
+    link_model = "linear")
+
   # blocks 1, 3, 9 have issues, try age-specific
-  # input <- prepare_wham_input(asap3, recruit_model = 3, # Bev Holt recruitment
   input <- prepare_wham_input(asap3, recruit_model = 2, # no SR relationship
                               model_name = df.mods$Model[m],                         
-                              NAA_re = list(cor="iid", sigma="rec"),
+                              NAA_re = list(cor=df.mods$NAA_cor[m], sigma="rec+1"),
                               M = list(re=df.mods$M_re[m]),
+                              ecov = ecov,
                               selectivity=list(model=c("age-specific","logistic","age-specific","logistic","logistic","logistic","logistic","logistic","age-specific"),
                                  initial_pars=list(c(.01,1,1,1,1,1), c(3,3), c(.01,1,1,1,1,1), c(3,3), c(3,3), c(3,3), c(3,3), c(3,3), c(.01,.25,1,1,1,1)),
                                  fix_pars=list(2:6, NULL, 2:6, NULL, NULL, NULL, NULL, NULL, 3:6))) 
@@ -51,8 +63,8 @@ for(m in 2:n.mods){ # Base.rds from NAA runs
   n_index_acomp_pars = c(0,1,1,3,1,2)[input$data$age_comp_model_indices[which(apply(input$data$use_index_paa,2,sum)>0)]]
   input$par$catch_paa_pars = rep(0, sum(n_catch_acomp_pars))
   input$par$index_paa_pars = rep(0, sum(n_index_acomp_pars))
-  
-  # bias correct obs and process
+
+  # 5/29/20, bias correct CAA and IAA
   input$data$bias_correct_oe = 1
   input$data$bias_correct_pe = 1  
 
@@ -60,18 +72,17 @@ for(m in 2:n.mods){ # Base.rds from NAA runs
   #  - 3 years
   #  - F = 0
   #  - WAA, MAA, maturity fixed at terminal year (2011)
-  # mod <- fit_wham(input, do.retro=F, do.osa=F, do.proj=F)    
+  # mod <- fit_wham(input, do.retro=F, do.osa=F, do.proj=F)  
   mod <- fit_wham(input, do.retro=T, do.osa=F, do.proj=T, proj.opts=list(proj.F=rep(0.001, 3))) 
 
   # Save model
   if(exists("err")) rm("err") # need to clean this up
-  saveRDS(mod, file=here("results","dat_2019","bias_correct_oepe_rev","M",paste0(df.mods$Model[m],".rds")))
-  # saveRDS(mod, file=here("results","dat_2019","bias_correct_oepe","M",paste0(df.mods$Model[m],".rds")))
-  # saveRDS(mod, file=here("results","dat_2019","bias_correct_oepe","M_noBH",paste0(df.mods$Model[m],".rds")))
+  saveRDS(mod, file=here("results","dat_2019","bias_correct_oepe_rev","NAA_M_CPI_noBH",paste0(df.mods$Model[m],".rds")))
+  # saveRDS(mod, file=here("results","dat_2019","bias_correct_oepe","NAA_M_CPI",paste0(df.mods$Model[m],".rds")))
 }
 
 # collect fit models into a list
-mod.list <- here("results","dat_2019","bias_correct_oepe_rev","M",paste0(df.mods$Model,".rds"))
+mod.list <- here("results","dat_2019","bias_correct_oepe_rev","NAA_M_CPI_noBH",paste0(df.mods$Model,".rds"))
 mods <- lapply(mod.list, readRDS)
 
 opt_conv = 1-sapply(mods, function(x) x$opt$convergence)
@@ -90,11 +101,11 @@ rownames(df.mods) <- NULL
 # look at results table
 df.mods
 
-
 # if(exists("err")) rm("err") # need to clean this up
 # mod$parList$logit_selpars
 # mod$sdrep
 # TMBhelper::Check_Identifiable(mod)
+
 
 # # # collect fit models into a list
 # # # df.mods <- df.mods[1:8,]

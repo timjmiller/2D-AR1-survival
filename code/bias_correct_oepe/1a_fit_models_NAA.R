@@ -35,7 +35,8 @@ df.mods
 for(m in 1:n.mods){
   
   # blocks 1, 3, 9 have issues, try age-specific
-  input <- prepare_wham_input(asap3, recruit_model = 2, # Bev Holt recruitment
+  # input <- prepare_wham_input(asap3, recruit_model = 3, # Bev Holt recruitment
+  input <- prepare_wham_input(asap3, recruit_model = 2, # no SR relationship
                               model_name = df.mods$Model[m],                         
                               NAA_re = list(cor=df.mods[m,"NAA_cor"], sigma=df.mods[m,"NAA_sigma"]),
                               selectivity=list(model=c("age-specific","logistic","age-specific","logistic","logistic","logistic","logistic","logistic","age-specific"),
@@ -70,7 +71,8 @@ for(m in 1:n.mods){
   # Save model
   if(exists("err")) rm("err") # need to clean this up
   # saveRDS(mod, file=here("results","dat_2019","bias_correct_oepe","NAA",paste0(df.mods$Model[m],".rds")))
-  saveRDS(mod, file=here("results","dat_2019","bias_correct_oepe","NAA_noBH",paste0(df.mods$Model[m],".rds")))
+  # saveRDS(mod, file=here("results","dat_2019","bias_correct_oepe","NAA_noBH",paste0(df.mods$Model[m],".rds")))
+  saveRDS(mod, file=here("results","dat_2019","bias_correct_oepe_rev","NAA",paste0(df.mods$Model[m],".rds")))
 }
 
 # if(exists("err")) rm("err") # need to clean this up
@@ -79,11 +81,9 @@ for(m in 1:n.mods){
 # TMBhelper::Check_Identifiable(mod)
 
 
-# # # collect fit models into a list
-# # # df.mods <- df.mods[1:8,]
-# # mod.list <- here("results",paste0(df.mods$Model,".rds"))
-# # # mod.list <- here("results","index4_age_fix36_index1_age",paste0(df.mods$Model,".rds"))
-# # mods <- lapply(mod.list, readRDS)
+# collect fit models into a list
+mod.list <- here("results","dat_2019","bias_correct_oepe_rev","NAA",paste0(df.mods$Model,".rds"))
+mods <- lapply(mod.list, readRDS)
 
 # # # t(sapply(mods, function(x) x$parList$logit_selpars[4,1:6]))
 
@@ -96,23 +96,23 @@ for(m in 1:n.mods){
 # mods[[m]]$sdrep
 # TMBhelper::Check_Identifiable(mods[[m]])
 
-# opt_conv = 1-sapply(mods, function(x) x$opt$convergence)
-# ok_sdrep = sapply(mods, function(x) if(x$na_sdrep==FALSE & !is.na(x$na_sdrep)) 1 else 0)
-# df.mods$conv <- as.logical(opt_conv)
-# df.mods$pdHess <- as.logical(ok_sdrep)
+opt_conv = 1-sapply(mods, function(x) x$opt$convergence)
+ok_sdrep = sapply(mods, function(x) if(x$na_sdrep==FALSE & !is.na(x$na_sdrep)) 1 else 0)
+df.mods$conv <- as.logical(opt_conv)
+df.mods$pdHess <- as.logical(ok_sdrep)
 
-# # df.mods$na_sdrep <- sapply(mods, function(x) x$na_sdrep)
-# df.mods$runtime <- sapply(mods, function(x) x$runtime)
-# df.mods$NLL <- sapply(mods, function(x) round(x$opt$objective,3))
-# df.aic <- as.data.frame(compare_wham_models(mods, sort=FALSE, calc.rho=F)$tab)
-# df.aic$AIC[df.mods$pdHess==FALSE] <- NA
-# minAIC <- min(df.aic$AIC, na.rm=T)
-# df.aic$dAIC <- round(df.aic$AIC - minAIC,1)
-# df.mods <- cbind(df.mods, df.aic)
-# rownames(df.mods) <- NULL
+# df.mods$na_sdrep <- sapply(mods, function(x) x$na_sdrep)
+df.mods$runtime <- sapply(mods, function(x) x$runtime)
+df.mods$NLL <- sapply(mods, function(x) round(x$opt$objective,3))
+df.aic <- as.data.frame(compare_wham_models(mods, sort=FALSE, calc.rho=F)$tab)
+df.aic$AIC[df.mods$pdHess==FALSE] <- NA
+minAIC <- min(df.aic$AIC, na.rm=T)
+df.aic$dAIC <- round(df.aic$AIC - minAIC,1)
+df.mods <- cbind(df.mods, df.aic)
+rownames(df.mods) <- NULL
 
-# # look at results table
-# df.mods
+# look at results table
+df.mods
 
 # write.csv(df.mods, file=here("results","index4_age_fix36_index1_age.csv"))
 
