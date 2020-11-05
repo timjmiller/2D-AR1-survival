@@ -97,18 +97,10 @@ dat %>% group_by(Model, Col, var, proj) %>% summarize(meandiff = round(mean(abs(
 # 2    NAA           Indep.   F    1     0.00
 # 3    NAA           Indep. SSB    0     0.00
 # 4    NAA           Indep. SSB    1     0.00
-# 5    NAA     Indep. + CPI   F    0     0.03
-# 6    NAA     Indep. + CPI   F    1     0.00
-# 7    NAA     Indep. + CPI SSB    0     0.03
-# 8    NAA     Indep. + CPI SSB    1     0.47
 # 9    NAA         2D AR(1)   F    0     0.09
 # 10   NAA         2D AR(1)   F    1     0.00
 # 11   NAA         2D AR(1) SSB    0     0.06
 # 12   NAA         2D AR(1) SSB    1     0.53
-# 13   NAA   2D AR(1) + CPI   F    0     0.08
-# 14   NAA   2D AR(1) + CPI   F    1     0.00
-# 15   NAA   2D AR(1) + CPI SSB    0     0.05
-# 16   NAA   2D AR(1) + CPI SSB    1     0.55
 # 17   NAA 2D AR(1) + NAA/M   F    0     0.21
 # 18   NAA 2D AR(1) + NAA/M   F    1     0.00
 # 19   NAA 2D AR(1) + NAA/M SSB    0     0.18
@@ -129,9 +121,7 @@ dat %>% group_by(Model, Col, var, proj) %>% summarize(meandiff = round(mean(abs(
 # SSB in model years
 dat %>% group_by(Model, Col, var, proj) %>% summarize(meandiff = round(mean(abs(val.rel)), 2)) %>% filter(proj == 0, var == "SSB") %>% as.data.frame
 #   Model              Col var proj meandiff
-# 2   NAA     Indep. + CPI SSB    0     0.03
 # 3   NAA         2D AR(1) SSB    0     0.06
-# 4   NAA   2D AR(1) + CPI SSB    0     0.05
 # 5   NAA 2D AR(1) + NAA/M SSB    0     0.18
 # 7     M         2D AR(1) SSB    0     0.09
 # 8     M 2D AR(1) + NAA/M SSB    0     0.14
@@ -139,9 +129,7 @@ dat %>% group_by(Model, Col, var, proj) %>% summarize(meandiff = round(mean(abs(
 # SSB in proj years
 dat %>% group_by(Model, Col, var, proj) %>% summarize(meandiff = round(mean(abs(val.rel)), 2)) %>% filter(proj == 1, var == "SSB") %>% as.data.frame
 #   Model              Col var proj meandiff
-# 2   NAA     Indep. + CPI SSB    1     0.47
 # 3   NAA         2D AR(1) SSB    1     0.53
-# 4   NAA   2D AR(1) + CPI SSB    1     0.55
 # 5   NAA 2D AR(1) + NAA/M SSB    1     0.48
 # 7     M         2D AR(1) SSB    1     0.48
 # 8     M 2D AR(1) + NAA/M SSB    1     0.63
@@ -149,9 +137,7 @@ dat %>% group_by(Model, Col, var, proj) %>% summarize(meandiff = round(mean(abs(
 # F in model years
 dat %>% group_by(Model, Col, var, proj) %>% summarize(meandiff = round(mean(abs(val.rel)), 2)) %>% filter(proj == 0, var == "F") %>% as.data.frame
 #   Model              Col var proj meandiff
-# 2   NAA     Indep. + CPI   F    0     0.03
 # 3   NAA         2D AR(1)   F    0     0.09
-# 4   NAA   2D AR(1) + CPI   F    0     0.08
 # 5   NAA 2D AR(1) + NAA/M   F    0     0.21
 # 7     M         2D AR(1)   F    0     0.13
 # 8     M 2D AR(1) + NAA/M   F    0     0.17
