@@ -17,13 +17,13 @@ df.mods
 
 # load models
 # mod.list <- here("results","dat_2019","bias_correct_oepe_rev","best",paste0(df.mods$Model,".rds"))
-mod.list <- list("/home/bstock/Documents/ms/2D-AR1-survival/results/dat_2019/bias_correct_oepe_rev/NAA/Base.rds",
-	"/home/bstock/Documents/ms/2D-AR1-survival/results/dat_2019/bias_correct_oepe_rev/NAA/NAA-2.rds",
-	"/home/bstock/Documents/ms/2D-AR1-survival/results/dat_2019/bias_correct_oepe_rev/NAA/NAA-5.rds",
-	"/home/bstock/Documents/ms/2D-AR1-survival/results/dat_2019/bias_correct_oepe_rev/M/M-1.rds",
-	"/home/bstock/Documents/ms/2D-AR1-survival/results/dat_2019/bias_correct_oepe_rev/M/M-4.rds",
-	"/home/bstock/Documents/ms/2D-AR1-survival/results/dat_2019/bias_correct_oepe_rev/NAA_M/NAA-M-2.rds",
-	"/home/bstock/Documents/ms/2D-AR1-survival/results/dat_2019/bias_correct_oepe_rev/NAA_M/NAA-M-3.rds")
+mod.list <- list("/home/bstock/Documents/ms/2D-AR1-survival/results/revision2/NAA/Base.rds",
+	"/home/bstock/Documents/ms/2D-AR1-survival/results/revision2/NAA/NAA-2.rds",
+	"/home/bstock/Documents/ms/2D-AR1-survival/results/revision2/NAA/NAA-5.rds",
+	"/home/bstock/Documents/ms/2D-AR1-survival/results/revision2/M/M-1.rds",
+	"/home/bstock/Documents/ms/2D-AR1-survival/results/revision2/M/M-4.rds",
+	"/home/bstock/Documents/ms/2D-AR1-survival/results/revision2/NAA_M/NAA-M-2.rds",
+	"/home/bstock/Documents/ms/2D-AR1-survival/results/revision2/NAA_M/NAA-M-3.rds")
 mods <- lapply(mod.list, readRDS)
 
 # calc results table
@@ -40,4 +40,4 @@ df.aic$dAIC <- round(df.aic$AIC - minAIC,1)
 df.mods <- cbind(df.mods, df.aic)
 rownames(df.mods) <- NULL
 
-write.csv(df.mods, file=here("tables","dat_2019","bias_correct_oepe_rev","best.csv"))
+write.csv(df.mods, file=here("tables","revision2","best.csv"))

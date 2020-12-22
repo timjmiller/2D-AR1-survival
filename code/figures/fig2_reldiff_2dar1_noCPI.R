@@ -9,12 +9,12 @@ library(wham)
 library(tidyverse)
 library(ggsci)
 
-mod.list <- c(here("results","dat_2019","bias_correct_oepe_rev","NAA","NAA-2.rds"),
-              here("results","dat_2019","bias_correct_oepe_rev","NAA","NAA-5.rds"),
-              here("results","dat_2019","bias_correct_oepe_rev","NAA_M","NAA-M-3.rds"),
-              here("results","dat_2019","bias_correct_oepe_rev","M","M-1.rds"),
-              here("results","dat_2019","bias_correct_oepe_rev","M","M-4.rds"),
-              here("results","dat_2019","bias_correct_oepe_rev","NAA_M","NAA-M-2.rds"))
+mod.list <- c(here("results","revision2","NAA","NAA-2.rds"),
+              here("results","revision2","NAA","NAA-5.rds"),
+              here("results","revision2","NAA_M","NAA-M-3.rds"),
+              here("results","revision2","M","M-1.rds"),
+              here("results","revision2","M","M-4.rds"),
+              here("results","revision2","NAA_M","NAA-M-2.rds"))
 mods <- lapply(mod.list, readRDS)
 mod.cols <- c("IID","2D AR(1)", "NAA + M", "IID","2D AR(1)", "NAA + M")
 mod.labs <- c("NAA","NAA","NAA","M","M","M")
@@ -84,7 +84,7 @@ ggplot(dat, aes(x=Year, y=val.rel, color=Col, group=Col)) +
   geom_text(data=df.labs, aes(label=label), x=1974, y=0.53, color='black', size=6, inherit.aes=F) +  # scale_fill_jco() +
   theme_bw() +
   theme(strip.placement = "outside", legend.title=element_blank(), legend.key.width = unit(0.9, "cm"))
-ggsave(here("plots","fig2_reldiff_2dar1.pdf"), device='pdf', width=7, height=4.5, units="in", dpi = 300)
+ggsave(here("plots","revision2","fig2_reldiff_2dar1.pdf"), device='pdf', width=7, height=4.5, units="in", dpi = 300)
 dev.off()
 
 # average abs(reldiff)
@@ -97,42 +97,42 @@ dat %>% group_by(Model, Col, var, proj) %>% summarize(meandiff = round(mean(abs(
 # 2    NAA           Indep.   F    1     0.00
 # 3    NAA           Indep. SSB    0     0.00
 # 4    NAA           Indep. SSB    1     0.00
-# 9    NAA         2D AR(1)   F    0     0.09
-# 10   NAA         2D AR(1)   F    1     0.00
-# 11   NAA         2D AR(1) SSB    0     0.06
-# 12   NAA         2D AR(1) SSB    1     0.53
-# 17   NAA 2D AR(1) + NAA/M   F    0     0.21
-# 18   NAA 2D AR(1) + NAA/M   F    1     0.00
-# 19   NAA 2D AR(1) + NAA/M SSB    0     0.18
-# 20   NAA 2D AR(1) + NAA/M SSB    1     0.48
-# 21     M           Indep.   F    0     0.00
-# 22     M           Indep.   F    1     0.00
-# 23     M           Indep. SSB    0     0.00
-# 24     M           Indep. SSB    1     0.00
-# 25     M         2D AR(1)   F    0     0.13
-# 26     M         2D AR(1)   F    1     0.00
-# 27     M         2D AR(1) SSB    0     0.09
-# 28     M         2D AR(1) SSB    1     0.48
-# 29     M 2D AR(1) + NAA/M   F    0     0.17
-# 30     M 2D AR(1) + NAA/M   F    1     0.00
-# 31     M 2D AR(1) + NAA/M SSB    0     0.14
-# 32     M 2D AR(1) + NAA/M SSB    1     0.63
+# 5    NAA         2D AR(1)   F    0     0.09
+# 6    NAA         2D AR(1)   F    1     0.00
+# 7    NAA         2D AR(1) SSB    0     0.06
+# 8    NAA         2D AR(1) SSB    1     0.53
+# 9    NAA 2D AR(1) + NAA/M   F    0     0.21
+# 10   NAA 2D AR(1) + NAA/M   F    1     0.00
+# 11   NAA 2D AR(1) + NAA/M SSB    0     0.18
+# 12   NAA 2D AR(1) + NAA/M SSB    1     0.48
+# 13     M           Indep.   F    0     0.00
+# 14     M           Indep.   F    1     0.00
+# 15     M           Indep. SSB    0     0.00
+# 16     M           Indep. SSB    1     0.00
+# 17     M         2D AR(1)   F    0     0.13
+# 18     M         2D AR(1)   F    1     0.00
+# 19     M         2D AR(1) SSB    0     0.09
+# 20     M         2D AR(1) SSB    1     0.48
+# 21     M 2D AR(1) + NAA/M   F    0     0.17
+# 22     M 2D AR(1) + NAA/M   F    1     0.00
+# 23     M 2D AR(1) + NAA/M SSB    0     0.15
+# 24     M 2D AR(1) + NAA/M SSB    1     0.63
 
 # SSB in model years
 dat %>% group_by(Model, Col, var, proj) %>% summarize(meandiff = round(mean(abs(val.rel)), 2)) %>% filter(proj == 0, var == "SSB") %>% as.data.frame
 #   Model              Col var proj meandiff
-# 3   NAA         2D AR(1) SSB    0     0.06
-# 5   NAA 2D AR(1) + NAA/M SSB    0     0.18
-# 7     M         2D AR(1) SSB    0     0.09
-# 8     M 2D AR(1) + NAA/M SSB    0     0.14
+# 2   NAA         2D AR(1) SSB    0     0.06
+# 3   NAA 2D AR(1) + NAA/M SSB    0     0.18
+# 5     M         2D AR(1) SSB    0     0.09
+# 6     M 2D AR(1) + NAA/M SSB    0     0.15
 
 # SSB in proj years
 dat %>% group_by(Model, Col, var, proj) %>% summarize(meandiff = round(mean(abs(val.rel)), 2)) %>% filter(proj == 1, var == "SSB") %>% as.data.frame
 #   Model              Col var proj meandiff
-# 3   NAA         2D AR(1) SSB    1     0.53
-# 5   NAA 2D AR(1) + NAA/M SSB    1     0.48
-# 7     M         2D AR(1) SSB    1     0.48
-# 8     M 2D AR(1) + NAA/M SSB    1     0.63
+# 2   NAA         2D AR(1) SSB    1     0.53
+# 3   NAA 2D AR(1) + NAA/M SSB    1     0.48
+# 5     M         2D AR(1) SSB    1     0.48
+# 6     M 2D AR(1) + NAA/M SSB    1     0.63
 
 # F in model years
 dat %>% group_by(Model, Col, var, proj) %>% summarize(meandiff = round(mean(abs(val.rel)), 2)) %>% filter(proj == 0, var == "F") %>% as.data.frame

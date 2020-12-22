@@ -36,7 +36,7 @@ df.mods$Model <- c("Base",paste0("NAA-",1:(n.mods-1)))
 df.mods <- df.mods %>% select(Model, everything()) # moves Model to first col
 
 # load models
-mod.list <- here("results","dat_2019","bias_correct_oepe_rev","NAA",paste0(df.mods$Model,".rds"))
+mod.list <- here("results","revision2","NAA",paste0(df.mods$Model,".rds"))
 # mod.list <- here("results","dat_2019","bias_correct_oe","NAA",paste0(df.mods$Model,".rds"))
 mods <- lapply(mod.list, readRDS)
 
@@ -116,7 +116,7 @@ df.mods$Model <- c("Base",paste0("M-",1:(n.mods-1)))
 df.mods <- df.mods %>% select(Model, everything()) # moves Model to first col
 
 # load models
-mod.list <- here("results","dat_2019","bias_correct_oepe_rev","M",paste0(df.mods$Model,".rds"))
+mod.list <- here("results","revision2","M",paste0(df.mods$Model,".rds"))
 mods <- lapply(mod.list, readRDS)
 
 # calc results table
@@ -207,7 +207,7 @@ df.mods <- df.mods %>% select(Model, everything()) # moves Model to first col
 
 # load models
 # mod.list <- here("results","dat_2019","bias_correct_oe","NAA_M",paste0(df.mods1$Model,".rds"))
-mod.list <- here("results","dat_2019","bias_correct_oepe_rev","NAA_M",paste0(df.mods$Model,".rds"))
+mod.list <- here("results","revision2","NAA_M",paste0(df.mods$Model,".rds"))
 mods1 <- lapply(mod.list, readRDS)
 
 tochar <- function(x){
@@ -405,76 +405,7 @@ df.mods %>%
 
 ---
 
-#### Table 4. NAA + CPI.
-
-```{r}
-# df.mods <- data.frame(NAA_re = rep(c(rep('iid',4),rep('2dar1',4),rep('iid',4)),2),
-#                       M_re = rep(c(rep('iid',4),rep('iid',4),rep('2dar1',4)),2),
-#                       est_M = rep(c(FALSE,FALSE,TRUE,TRUE),6),
-#                       CPI_how = rep(rep(c(0,2),6),2),
-#                       CPI_mod = c(rep("rw",12),rep("ar1",12)), stringsAsFactors=FALSE)
-# n.mods <- dim(df.mods)[1]
-# df.mods$Model <- paste0("m",1:n.mods)
-df.mods <- data.frame(NAA_cor = c('iid','ar1_a','ar1_y','2dar1'), stringsAsFactors=FALSE)
-n.mods <- dim(df.mods)[1]
-df.mods$Model <- paste0("NAA-CPI-",1:n.mods)
-df.mods <- df.mods %>% select(Model, everything()) # moves Model to first col
-
-# load models
-mod.list <- here("results","dat_2019","bias_correct_oepe_rev","NAA_CPI",paste0(df.mods$Model,".rds"))
-mods <- lapply(mod.list, readRDS)
-
-# calc results table
-opt_conv = 1-sapply(mods, function(x) x$opt$convergence)
-ok_sdrep = sapply(mods, function(x) if(x$na_sdrep==FALSE & !is.na(x$na_sdrep)) 1 else 0)
-df.mods$conv <- as.logical(opt_conv)
-df.mods$pdHess <- as.logical(ok_sdrep)
-df.mods$runtime <- sapply(mods, function(x) x$runtime)
-df.mods$NLL <- sapply(mods, function(x) round(x$opt$objective,3))
-have_peels <- sapply(mods, function(x) !is.null(x$peels))
-df.aic <- as.data.frame(compare_wham_models(mods, sort=FALSE, calc.rho=F, do.print=F)$tab)
-df.aic$dAIC <- df.aic$rho_Fbar <- df.aic$rho_SSB <- df.aic$rho_R <- NA
-if(any(have_peels)){
-	tmp <- as.data.frame(compare_wham_models(mods[have_peels], sort=FALSE, calc.rho=T, do.print=F)$tab)
-	df.aic[have_peels==TRUE, 3:5] <- tmp[,3:5]
-	df.aic[df.mods$pdHess==FALSE,] <- NA
-}
-minAIC <- min(df.aic$AIC, na.rm=T)
-df.aic$dAIC <- round(df.aic$AIC - minAIC,1)
-df.mods <- cbind(df.mods, df.aic)
-rownames(df.mods) <- NULL
-
-# df <- df.mods %>% filter(NAA_cor == "iid", CPI_how==2, CPI_mod=='ar1', pdHess==TRUE)
-# df$Model <- paste0("NAA-M-CPI-",1:dim(df)[1])
-df <- df.mods
-df[df == "iid"] = "IID"
-df[df == "2dar1"] = "2D AR1"
-# df[df == FALSE] = "No"
-# df$dAIC[3] = "0.0"
-# df[df == TRUE] = "Yes"
-# df <- df[,c(1:10,12,11,13:15)]
-
-# thebest = 2
-df %>%
-  # select(-one_of("pdHess","CPI_how","CPI_mod")) %>% 
-  # dplyr::rename("Estimate $\\mu_{M}$"="est_M", "Converged"="conv", "Runtime\n(min)"="runtime", "$\\Delta AIC$"="dAIC",
-  #        "$\\rho_{R}$"="rho_R", "$\\rho_{SSB}$"="rho_SSB", "$\\rho_{\\overline{F}}$"="rho_Fbar") %>%
-  select(-one_of("pdHess","conv","runtime")) %>% 
-  # select(-one_of("pdHess","conv","CPI_how","CPI_mod","runtime")) %>% 
-  dplyr::rename("Random effects on NAA"="NAA_cor",
-         "$\\Delta AIC$"="dAIC","$\\rho_{R}$"="rho_R", "$\\rho_{SSB}$"="rho_SSB", "$\\rho_{F}$"="rho_Fbar") %>%
-    # dplyr::rename("Estimate $\\mu_{M}$"="est_M", "Random effects on NAA"="NAA_re","Random effects on M"="M_re",
-    #      "$\\Delta AIC$"="dAIC","$\\rho_{R}$"="rho_R", "$\\rho_{SSB}$"="rho_SSB", "$\\rho_{\\overline{F}}$"="rho_Fbar") %>%
-kable(escape = F)
-  # kable(escape = F) %>%
-  # kable_styling(bootstrap_options = c("condensed","responsive"))
-  # kable_styling(bootstrap_options = c("condensed","responsive")) %>%
-  # row_spec(thebest, background = gray.colors(10,end=0.95)[10])
-```
-
----
-
-#### Table 5. Best models with CPI fit so can compare AIC, F=0 in projections so can compare SSB predictions.
+#### Table 5. Best models, compare SSB predictions.
 
 ```{r}
 df.mods <- data.frame(NAA_cor = c('iid','iid','2dar1','iid','iid','iid','2dar1'),
@@ -486,14 +417,14 @@ df.mods$lab <- c("Base","NAA-2","NAA-5","M-1","M-4","NAA-M-2","NAA-M-3")
 df.mods <- df.mods %>% select(Model, lab, everything()) # moves Model to first col
 
 # load models
-# mod.list <- here("results","dat_2019","bias_correct_oepe_rev","best",paste0(df.mods$Model,"_proj.rds"))
-mod.list <- list("/home/bstock/Documents/ms/2D-AR1-survival/results/dat_2019/bias_correct_oepe_rev/NAA/Base.rds",
-  "/home/bstock/Documents/ms/2D-AR1-survival/results/dat_2019/bias_correct_oepe_rev/NAA/NAA-2.rds",
-  "/home/bstock/Documents/ms/2D-AR1-survival/results/dat_2019/bias_correct_oepe_rev/NAA/NAA-5.rds",
-  "/home/bstock/Documents/ms/2D-AR1-survival/results/dat_2019/bias_correct_oepe_rev/M/M-1.rds",
-  "/home/bstock/Documents/ms/2D-AR1-survival/results/dat_2019/bias_correct_oepe_rev/M/M-4.rds",
-  "/home/bstock/Documents/ms/2D-AR1-survival/results/dat_2019/bias_correct_oepe_rev/NAA_M/NAA-M-2.rds",
-  "/home/bstock/Documents/ms/2D-AR1-survival/results/dat_2019/bias_correct_oepe_rev/NAA_M/NAA-M-3.rds")
+# mod.list <- here("results","revision2","best",paste0(df.mods$Model,"_proj.rds"))
+mod.list <- list("/home/bstock/Documents/ms/2D-AR1-survival/results/revision2/NAA/Base.rds",
+  "/home/bstock/Documents/ms/2D-AR1-survival/results/revision2/NAA/NAA-2.rds",
+  "/home/bstock/Documents/ms/2D-AR1-survival/results/revision2/NAA/NAA-5.rds",
+  "/home/bstock/Documents/ms/2D-AR1-survival/results/revision2/M/M-1.rds",
+  "/home/bstock/Documents/ms/2D-AR1-survival/results/revision2/M/M-4.rds",
+  "/home/bstock/Documents/ms/2D-AR1-survival/results/revision2/NAA_M/NAA-M-2.rds",
+  "/home/bstock/Documents/ms/2D-AR1-survival/results/revision2/NAA_M/NAA-M-3.rds")
 mods <- lapply(mod.list, readRDS)
 
 # calc results table

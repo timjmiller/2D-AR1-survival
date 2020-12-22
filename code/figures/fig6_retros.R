@@ -9,12 +9,12 @@ library(tidyverse)
 library(ggsci)
 library(data.table)
 
-mod.list <- c(here("results","dat_2019","bias_correct_oepe_rev","NAA","Base.rds"),
-              here("results","dat_2019","bias_correct_oepe_rev","NAA","NAA-2.rds"),
-              here("results","dat_2019","bias_correct_oepe_rev","NAA","NAA-5.rds"),
-              here("results","dat_2019","bias_correct_oepe_rev","M","M-4.rds"),
-              here("results","dat_2019","bias_correct_oepe_rev","NAA_M","NAA-M-2.rds"),
-              here("results","dat_2019","bias_correct_oepe_rev","NAA_M","NAA-M-3.rds"))
+mod.list <- c(here("results","revision2","NAA","Base.rds"),
+              here("results","revision2","NAA","NAA-2.rds"),
+              here("results","revision2","NAA","NAA-5.rds"),
+              here("results","revision2","M","M-4.rds"),
+              here("results","revision2","NAA_M","NAA-M-2.rds"),
+              here("results","revision2","NAA_M","NAA-M-3.rds"))
 mods <- lapply(mod.list, readRDS)
 mod.labs <- c("Base","NAA-2", "NAA-5", "M-4", "NAA-M-2","NAA-M-3")
 years = mods[[1]]$years
@@ -92,5 +92,5 @@ ggplot(df, aes(x=Year,y=val, color=peel, group=peel)) +
   coord_cartesian(ylim=c(-1,2)) +
   theme_bw() +
   theme(legend.position = "none", axis.text = element_text(size=8))
-ggsave(here("plots","fig5_retros.pdf"), device='pdf', width=8, height=5, units="in", dpi = 300)
+ggsave(here("plots","revision2","fig5_retros.pdf"), device='pdf', width=8, height=5, units="in", dpi = 300)
 dev.off()

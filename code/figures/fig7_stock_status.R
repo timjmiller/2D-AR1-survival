@@ -11,12 +11,12 @@ library(ggsci)
 library(data.table)
 
 # fig.height = 5, fig.width = 7}
-mod.list <- c(here("results","dat_2019","bias_correct_oepe_rev","NAA","Base.rds"),
-              here("results","dat_2019","bias_correct_oepe_rev","NAA","NAA-2.rds"),
-              here("results","dat_2019","bias_correct_oepe_rev","NAA","NAA-5.rds"),
-              here("results","dat_2019","bias_correct_oepe_rev","M","M-4.rds"),
-              here("results","dat_2019","bias_correct_oepe_rev","NAA_M","NAA-M-2.rds"),
-              here("results","dat_2019","bias_correct_oepe_rev","NAA_M","NAA-M-3.rds"))
+mod.list <- c(here("results","revision2","NAA","Base.rds"),
+              here("results","revision2","NAA","NAA-2.rds"),
+              here("results","revision2","NAA","NAA-5.rds"),
+              here("results","revision2","M","M-4.rds"),
+              here("results","revision2","NAA_M","NAA-M-2.rds"),
+              here("results","revision2","NAA_M","NAA-M-3.rds"))
 mods <- lapply(mod.list, readRDS)
 mod.labs <- c("Base","NAA-2", "NAA-5", "M-4", "NAA-M-2","NAA-M-3")
 
@@ -75,6 +75,6 @@ ggplot(dat, aes(x=Year, y=val, color=Model, group=Model)) +
   scale_fill_jco() +
   theme_bw() +
   theme(strip.background = element_blank(), strip.placement = "outside")
-ggsave(here("plots","fig6_stock_status.pdf"), device='pdf', width=7, height=5, units="in", dpi = 300)
+ggsave(here("plots","revision2","fig6_stock_status.pdf"), device='pdf', width=7, height=5, units="in", dpi = 300)
 dev.off()
 

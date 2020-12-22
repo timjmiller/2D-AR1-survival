@@ -11,7 +11,7 @@ library(ggsci)
 library(data.table)
 
 # mod <- readRDS(here("results","dat_2019","bias_correct_oepe_rev","NAA_M","NAA-M-2.rds"))
-mod.list <- here("results","dat_2019","bias_correct_oepe_rev","NAA_M",paste0("NAA-M-",2:3,".rds"))
+mod.list <- here("results","revision2","NAA_M",paste0("NAA-M-",2:3,".rds"))
 mods <- lapply(mod.list, readRDS)
 
 n_ages <- mods[[1]]$env$data$n_ages
@@ -52,6 +52,6 @@ ggplot(df.plot, ggplot2::aes(x=Year, y=Age)) +
       facet_grid(rows=vars(type), cols=vars(mod)) +
       geom_label(data=df.labs, aes(label=label), color='black', size=6, alpha=1, label.r=unit(0, "lines"), label.size=NA) +
       scale_fill_gradient2(name = "", low = scales::muted("blue"), mid = "white", high = scales::muted("red"))
-ggsave(here("plots","fig4_naa_m_devs_2mods.pdf"), device='pdf', width=7, height=4, units="in", dpi = 300)
+ggsave(here("plots","revision2","fig4_naa_m_devs_2mods.pdf"), device='pdf', width=7, height=4, units="in", dpi = 300)
 dev.off()
 

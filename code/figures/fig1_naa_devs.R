@@ -17,7 +17,8 @@ df.mods$Model <- c("Base",paste0("NAA-",1:(n.mods-1)))
 df.mods <- df.mods %>% select(Model, everything()) # moves Model to first col
 
 # load models
-mod.list <- here("results","dat_2019","bias_correct_oepe_rev","NAA",paste0(df.mods$Model,".rds"))
+res_dir <- here("results","revision2","NAA")
+mod.list <- file.path(res_dir,paste0(df.mods$Model,".rds"))
 mods <- lapply(mod.list, readRDS)
 
 # df.mods$Model <- paste0("NAA-",1:n.mods)
@@ -54,5 +55,5 @@ ggplot(df.plot, ggplot2::aes(x=Year, y=Age)) +
         theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
         facet_grid(rows=vars(NAA_cor), cols=vars(NAA_sigma), drop=F, labeller = label_parsed) +
         scale_fill_gradient2(name = "", low = scales::muted("blue"), mid = "white", high = scales::muted("red"))
-ggsave(here("plots","fig1_naa_devs.pdf"), device='pdf', width=7, height=6, units="in", dpi = 300)
+ggsave(here("plots","revision2","fig1_naa_devs.pdf"), device='pdf', width=7, height=6, units="in", dpi = 300)
 dev.off()
